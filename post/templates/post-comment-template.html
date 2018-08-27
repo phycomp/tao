@@ -1,0 +1,18 @@
+{%load i18n%}
+{%with body=comment.body postID=comment.post_id cmID=comment.id cmtID=comment.commentor_id timestamp=comment.timestamp%}
+<article>
+	<output style='margin-right:2px'>
+	<div onclick='commentPostDelete(this)' cid={{comment.id}}>delete</div>
+	<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>
+	<div onclick='commentPostEdit(this)' cid={{cmID}}>edit</div>
+	</output>
+	<summary>
+	<div>{{body}}</div>
+	<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	<form class=flexForm cid={{cmID}} postID={{postID}} onsubmit='commentPostSelf(this, event)' validate>
+	<textarea rows=1 required></textarea>
+	<button style='flex:1'>{%trans 'comment'%}</button>
+	</form>
+	</summary>
+</article>
+{%endwith%}

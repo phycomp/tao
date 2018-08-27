@@ -1,0 +1,30 @@
+{%extends 'base.html'%}
+{%load staticfiles%}
+{%block JS%}
+<script src={%static 'js/hanzi-writer.min.js'%}></script>
+{%endblock JS%}
+{%block SCRIPT%}
+<script>
+let HANZI=ById('HANZI')
+var char='有'
+var writer = new HanziWriter('hanzi', char, {
+  width: 100, height: 100, padding: 5, showOutline: false,
+  strokeAnimationSpeed: 5, delayBetweenStrokes: 10, // milliseconds
+  radicalColor: '#00ff00' // blue
+});
+HANZI.addEventListener('keydown', function(evt) {
+	if(evt.keyCode==13&&evt.altKey&&this.value)
+		{ char=input.value?input.value:'激';
+		writer.setCharacter(char)
+		writer.animateCharacter();
+		}
+});
+</script>
+{%endblock SCRIPT%}
+{%block MAIN%}
+<main>
+<input id=HANZI type=text value=道>
+<div id=hanzi></div>
+{#<button>Animate</button>#}
+</main>
+{%endblock MAIN%}

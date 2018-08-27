@@ -1,0 +1,337 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block TITLE%}- {%firstof user.full_name user.id user.identifier%}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+section{flex:1; justify-content:center; scroll-x:auto; }
+figcaption{flex:1; }
+article{margin-top:2px}
+output{font-size:3vw; }
+summary{flex:9; }
+#avatarAdd{display:none; }
+</style>
+{%endblock STYLE%}
+{%block EXTRA%}
+<form id=postAdd enctype=multipart/form-data method=POST validate>
+<textarea name=body rows=2></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'Post Add'%}</button>
+</form>
+{%endblock EXTRA%}
+{%block SCRIPT%}
+<script>
+let postAdd=ById('postAdd'), txtarea=querySelector('textarea')
+let rspData, attached=querySelector('input[type=file]'), summary=ById('summary'), editProfile=ById('editProfile')
+//let newData=querySelector('.newData'), pid, formdata, newdataStatus, newdataOffsetTop, scrollPos, winnerHeight, paginationStatus=true
+let iids=[], oids=[], iid, oid, IIDs, OIDs;
+function get_iids()
+	{iids=[]; IIDs=document.getElementsByName('iid')
+	for (idx=0;idx<IIDs.length;idx++)
+		{iid=IIDs[idx].getAttribute('iid'); iids.push(iid) }
+		return iids
+	}
+function get_oids()
+	{oids=[]; OIDs=document.getElementsByName('oid')
+	for (idx=0;idx<OIDs.length;idx++)
+		{oid=OIDs[idx].getAttribute('oid'); oids.push(oid) }
+		return oids
+	}
+
+//window.onload=function(){ONLOAD()}
+let url="{%url 'me-pagination'%}", idAttr='pid'//, idValue
+window.onscroll=function(){infinitScroll(url, idAttr)}
+
+function postCtxEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[0]//.getElementsByTagName('div')[0]
+	let pid=obj.getAttribute('pid'), txtarea=ById('bE'), section=summary.parentNode
+	if(!document.contains(txtarea)) txtarea=createElement('textarea')
+	txtarea.rows=1; txtarea.id='bE'; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function pE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({pid:pid, body:body})
+			xhr.data_sent("{%url 'post-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.postCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', pE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentPost Not Edited') }
+				}
+			}
+	})
+}
+
+function postDelete(obj, event){
+var pid=obj.getAttribute('pid');
+data=JSON.stringify({pid:pid});
+xhr.data_sent("{%url 'post-delete'%}", data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.PostDeleted) obj.parentNode.parentNode.remove();//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+				else console.log('Blog Not Deleted'); };
+			};
+}
+	editProfile.addEventListener('submit', function(evt){
+		formdata=new FormData(editProfile)
+		xhr.data_sent("{%url 'edit-profile'%}", formdata);
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText)
+				if (rspData.profileUpdated){editProfile.innerHTML=rspData.ctx /*editProfile.reset()*/}
+				else console.log('User Not Existed') }
+			}
+		evt.preventDefault()}, false)
+	postAdd.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData;
+		formdata=new FormData(postAdd); 
+		if (txtarea.value||attached.files.length)
+			{ xhr.data_sent("{%url 'post-add'%}", formdata);
+			xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.postUpdated){article.insertAdjacentHTML('beforebegin', rspData.ctx); postAdd.reset()}
+					else console.log('Post Not Updated') }
+				}
+			}
+		evt.preventDefault()}, false)
+var avatarAdd=ById('avatarAdd')
+
+avatarAdd.addEventListener('submit', function(evt){
+	var avatarAttached=this.getElementsByTagName('input')[0]
+	formdata=new FormData(avatarAdd); 
+	if (avatarAttached.files.length)
+		{ xhr.data_sent("{%url 'avatar-add'%}", formdata);
+			xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText); rspData=eval("("+rspData+")")
+				if (rspData.avatarAdded){avatarAdd.show=false; avatarAdd.style.display='none'; avatarAdd.reset(); avatarAdd.previousElementSibling.firstChild.src="data:image/jpeg;base64,"+rspData.media}
+				else console.log('Avatar Not Added') }
+			}
+		}
+	evt.preventDefault()}, false)
+
+function avatarToggle(obj){
+	avatarAdd.style.display=avatarAdd.show?'none':'block'
+	avatarAdd.show=!avatarAdd.show
+	//avatarAdd.style.display=avatarAdd.show=='none'?'block':'none'
+	//showAvatar=obj.getAttribute('show')=='avatarAdd';
+	//avatarAdd.style.display=showAvatar?'block':'none'
+}
+
+function friendBlock(obj){
+	data=JSON.stringify({'fid':obj.getAttribute('fid')})
+	output=obj.parentNode
+	xhr.data_sent("{%url 'friend-block'%}", data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState===4 && this.status===200)
+		{ rspData=JSON.parse(this.response);
+		if (rspData.friendBlocked) {console.log('friend Blocked'); if(rspData.friendTemplate)output.innerHTML=rspData.friendTemplate}
+		else console.log('Friend unBlocked') }
+	}
+}
+
+function unfriend(obj){
+	data=JSON.stringify({'fid':obj.getAttribute('fid')})
+	output=obj.parentNode
+	xhr.data_sent("{%url 'friend-unfriend'%}", data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState===4 && this.status===200)
+		{ rspData=JSON.parse(this.response);
+		if (rspData.unFriended){console.log('UnFriended'); if(rspData.friendTemplate)output.innerHTML=rspData.friendTemplate}
+		else console.log('Not UnFriended') }
+	}
+}
+
+function friendReject(obj){
+	data=JSON.stringify({iid:obj.getAttribute('iid'), iids:get_iids()})
+	output=obj.parentNode;
+	xhr.data_sent("{%url 'friend-reject'%}", data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState===4 && this.status===200)
+		{ rspData=JSON.parse(this.response);
+		if (rspData.friendRejected){console.log('Friend Rejected'); if(rspData.invokerTemplate)output.innerHTML=rspData.invokerTemplate}
+		else console.log('Friend not Rejected') }
+	}
+}
+
+function friendAdd(obj){
+	data=JSON.stringify({'iid':obj.getAttribute('iid'), iids:get_iids()})
+	output=obj.parentNode;
+	xhr.data_sent("{%url 'friend-add'%}", data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState===4 && this.status===200)
+		{ rspData=JSON.parse(this.response);
+		if (rspData.friendAdded) {console.log('Friend Added'); if(rspData.invokerTemplate)output.innerHTML=rspData.invokerTemplate}
+		else console.log('Friend not Added') }
+	}
+}
+
+function friendInvoke(obj){
+	data=JSON.stringify({'oid':obj.getAttribute('oid'), 'oids':get_oids()})
+	output=obj.parentNode
+	xhr.data_sent("{%url 'friend-invoke'%}", data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState===4 && this.status===200)
+		{ rspData=JSON.parse(this.response);
+		if (rspData.friendInvoked) {console.log('Friend Invoked'); if(rspData.otherTemplate)output.innerHTML=rspData.otherTemplate}
+		else console.log('Friend not Invoked') }
+	}
+}
+
+function ONLOAD(){
+}
+</script>
+{%endblock SCRIPT%}
+{%block SECTION%}
+<details>
+<section>
+{%for oid in OIDs%}
+<output style='margin:2px' name=oid oid={{oid}}>
+<div><a href={%url 'profile' oid%}><img class=small src={%url 'avatar-member' oid%}></a></div>
+{#<div oid={{oid}} onclick='friendFollow(this)'>{%trans 'Follow'%}</div>#}
+<div oid={{oid}} onclick='friendInvoke(this)'>{%trans 'Add'%}</div>
+</output>
+{%endfor%}
+</section>
+<section>
+{%for iid in IIDs%}
+<output style='margin:2px' name=iid iid={{iid}}>
+<div><a href={%url 'profile' iid%}><img class=small src={%url 'avatar-member' iid%}></a></div>
+<div iid='{{iid}}' onclick='friendReject(this)'>{%trans 'Reject'%}</div>
+<div iid='{{iid}}' onclick='friendAdd(this)'>{%trans 'asFriend'%}</div>
+</output>
+{%endfor%}
+</section>
+<section>
+{%for fid in FIDs%}
+<output style='margin:2px' name=fid fid={{fid}}>
+<div><a href={%url 'profile' fid%}><img class=small src={%url 'avatar-member' fid%}></a></div>
+<div fid='{{fid}}' onclick='unfriend(this)'>{%trans 'Unfriend'%}</div>
+<div fid='{{fid}}' onclick='friendBlock(this)'>{%trans 'Block'%}</div>
+</output>
+{%endfor%}
+</section>
+<section>
+<figcaption>
+<div><img class=small src={%url 'avatar-member' user.id%}></div>
+<form id=avatarAdd enctype=multipart/form-data method=post validate>
+<input type=file name=avatar placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'Avatar Add'%}</button>
+</form>
+<div onclick='avatarToggle(this)'>{%trans 'Avatar Add'%}</div>
+{%comment%}
+<summary id=summary>
+<div>{{user.first_name}} {{user.last_name}}</div>
+<div></div>
+<div>{{user.nickname}}</div>
+<div>{{user.email}}</div>
+<div>{{user.cellular}}</div>
+<div>{{user.birthday}}</div>
+</summary>
+{%endcomment%}
+</figcaption>
+<figcaption>
+<form id='editProfile' action={%url 'edit-profile'%} enctype=multipart/form-data method=post autocomplete=on validate>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+	{#<input type=text name=identifier placeholder={%trans 'identifier'%} required autocomplete='identifier' value={{user.identifier}}><br>#}
+	<input type=text name=first_name placeholder={%trans 'first_name'%} required autocomplete='first-name' value={{user.first_name}}><br>
+	<input type=text name=last_name placeholder={%trans 'last_name'%} required autocomplete='last-name' value={{user.last_name}}><br>
+	<input type=text name=nickname placeholder={%trans 'nickname'%} required autocomplete='nickname' value={{user.nickname}}><br>
+	<input type=email name=email pattern='[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$' placeholder={%trans 'email'%} title='Email validation' required autocomplete='email' value={{user.email}}><br>
+	<input type=text name=cellular pattern='\d{10,15}' placeholder={%trans 'cellular'%} title='10-15 digits' value={{user.cellular}} autocomplete='tel' required><br>
+	<input type=date name=birthday pattern='[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])' placeholder="{%trans 'birthday like 2018-01-01'%}" title='YYYY-MM-DD' required value='{{user.birthday|date:"Y-m-d"}}'><br>
+	<button>{%trans 'edit profile'%}</button>
+</form>
+</figcaption>
+</section>
+</details>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for post in posts%}
+{%include 'post-template.html' with userID=userID%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+	{#<div><a href={%url 'post-edit' pid%}>{%trans 'edit'%}</a></div>#}
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+</style>
+{%block MAIN%}
+<main>
+</main>
+{%endblock MAIN%}
+{%block ASIDE%}
+{%for tag in sutra.tag.all%}
+	<span><a href='{%url "tag" tag.id%}'>{{tag}}</a></span>
+{%endfor%}
+{%endblock ASIDE%}
+modal.addEventListener('click', function(event){
+	this.style.display='none';
+})
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+function infinitScroll(){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset, winnerHeight=window.innerHeight;
+	pid=newData.previousElementSibling.getAttribute('pid')
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus&&pid)
+		{data=JSON.stringify({'pid':pid})
+			xhr.data_sent("{%url 'me-pagination'%}", data);
+			paginationStatus=!paginationStatus
+			xhr.onreadystatechange=function(evt)
+			{ if(this.readyState===4 && this.status===200)
+				{ rspData=JSON.parse(this.response);
+				if (rspData.newData) {paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData);}
+				else console.log('newdata not updated') }
+			}
+		}
+}
+{%endcomment%}

@@ -1,0 +1,189 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block CSS%}
+<link href="{{MEDIA_URL}}css/quill.bubble.css" rel=stylesheet>
+<script src='{{MEDIA_URL}}js/quill.js'></script>
+{%endblock CSS%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+article div:hover{color:cyan; }
+/*article div{flex:1; }
+article div img{max-width:100%; height:auto; }*/
+output{margin-right:2px; }
+</style>
+{%endblock STYLE%}
+{%block XHR%}
+{%include 'xhr.html'%}
+{%endblock XHR%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()};
+let idAttr='gid', url="{%url 'gallery-pagination'%}"
+window.onscroll=function(){infinitScroll(url, idAttr)}
+let galleryAdd=ById('galleryAdd'), rspData, formdata
+
+function galleryDelete(obj){
+	data={gid:obj.getAttribute('gid')}
+	xhr.data_sent("{%url 'gallery-delete'%}", JSON.stringify(data));
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.galleryDeleted) obj.parentNode.parentNode.remove();
+			else console.log('Gallery Not Deleted')}
+	}
+}
+
+	galleryAdd.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData;
+		formdata=new FormData(galleryAdd);
+		xhr.data_sent("{%url 'gallery-add'%}", formdata);
+		xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if(rspData.galleryAdded){article.insertAdjacentHTML('beforebegin', rspData.ctx); galleryAdd.reset()}
+			else console.log('Gallery Not Added') }
+		}
+		evt.preventDefault()}, false)
+
+function ONLOAD(){
+}
+</script>
+{%endblock SCRIPT%}
+{%block SECTION%}
+<form id=galleryAdd action='{%url "gallery"%}' enctype='multipart/form-data' method=POST validate>
+<input type=text name=title placeholder=title required>
+{#<textarea name=body cols=1 rows=2></textarea>#}
+<input type=file name=pics multiple>
+<button>{%trans 'Gallery Add'%}</button>
+</form>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for gallery in galleries%}
+	{%with title=gallery.title.title medium=gallery.picture.all ggid=gallery.galler_id gid=gallery.id%}
+	<article gid={{gid}}>
+	<output>
+	<div onclick='galleryDelete(this, event)' gid={{gid}}>{%trans 'delete'%}</div>
+	<a href={%url 'profile' ggid%}><img title={{ggid}} alt={{ggid}} src={%url 'avatar-member' ggid%} class=small></a>
+	<div><a href={%url 'gallery-detail' gid%}>{%trans 'detail'%}</a></div>
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{gallery.timestamp|timesince}} {%trans 'ago'%}</time></div>
+			{%if medium%}<div>
+			{%for media in medium%}
+				<img class=small title='{{media.description}}' alt='{{media.description}}' src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%endfor%}
+			</div>{%endif%}
+	</summary>
+	</article>
+	{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal'), aside=querySelector('aside')
+var IMG, Images=[], IMGs={}, DESCRP={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src'); descrp=images[idx].getAttribute('alt')
+		Images.push(img)
+		IMGs[idx]=img; DESCRP[idx]=descrp}
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	aside.innerHTML=obj.getAttribute('alt')
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]; descr=DESCRP[idx+1]
+	aside.innerHTML=descr; IMG.alt=descr
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]; descr=DESCRP[idx-1]
+	aside.innerHTML=descr; IMG.alt=descr
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<aside></aside>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+#galleryAdd{width:100%; }
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+aside{position:fixed; bottom:100px; font-size:3vw; margin:auto; width:50%; }
+</style>
+<aside>
+{%for tag in tags%}
+<span><a href={%url 'tag' tag.id%}>{{tag}}</a></span>
+{%endfor%}
+</aside>
+<main>
+</main>
+function galleryCtxEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[1]//.getElementsByTagName('div')[0]
+	let gid=obj.getAttribute('gid'), txtarea=ById('bE'), section=summary.parentNode
+	if(!document.contains(txtarea)) txtarea=createElement('textarea')
+	txtarea.rows=1; txtarea.id='bE'; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function bE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({gid:gid, body:body})
+			xhr.data_sent("{%url 'gallery-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.galleryCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', bE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentBlog Not Deleted') }
+				}
+			}
+	})
+}
+
+let data, newData=querySelector('.newData'), winHeight=window.innerHeight, paginationStatus=true;
+
+function infinitScroll(){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset, winnerHeight=window.innerHeight;
+	gid=newData.previousElementSibling.getAttribute('gid')
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus&&gid)
+		{data=JSON.stringify({'gid':gid})
+		xhr.data_sent("{%url 'gallery-pagination'%}", data);
+		paginationStatus=!paginationStatus
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState===4&&this.status===200)
+				{ rspData=JSON.parse(this.response);
+				if (rspData.newData) {paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData)}
+				else newdataStatus=false }
+			};
+		}
+}
+
+{%endcomment%}

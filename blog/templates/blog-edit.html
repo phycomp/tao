@@ -1,0 +1,79 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block SCRIPT%}
+<script>
+let url="{%url 'blog-media-delete'%}"
+function blogMediaDelete(obj){
+	data=JSON.stringify({mid:obj.getAttribute('mid')});
+	xhr.data_sent(url, data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.BlogMediaDeleted) obj.parentNode.remove()//;window.location=url//
+			else console.log('Media Not Deleted')}
+	}
+}
+{%if blog.post.author.id == user.id%}
+let blogEdit=document.getElementById('blogEdit')
+	blogEdit.addEventListener('submit', function(evt){
+		formdata=new FormData(blogEdit); 
+		if (txtarea.value||attached.files.length)
+			{ xhr.data_sent(url, formdata);
+				xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.PostUpdated) window.location=url//blogEdit.reset()//innerHTML="<div style='color:red'>Post Updated</div>";
+					else console.log('Post Not Updated') }
+				}
+			}
+		evt.preventDefault()}, false)
+{%endif%}
+
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{justify-content:center; }
+textarea{width:100%; border-radius:5px; margin-top:2px; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%with bid=blog.id title=blog.title.title body=blog.post.body medium=blog.post.media.all%}
+<form id=blogEdit action={%url "blog-edit" blog.id%} enctype=multipart/form-data method=POST>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+<input type=text name=title placeholder='blog title' value="{{blog.title}}" required>
+<textarea name=body placeholder=BlogBody cols=30 rows=8 required>{{blog.post.body}}</textarea>
+<datalists>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+	{%for media in medium%}
+	<output>
+	{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'><div onclick='blogMediaDelete(this, event)' mid={{media.id}}>{%trans 'delete'%}</div>
+	{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+	</output>
+	{%endfor%}
+</datalists>
+<button>{%trans 'Blog Edit'%}</button>
+</form>
+{%endwith%}
+</main>
+{%include 'aside.html'%}
+{%endblock MAIN%}
+{%comment%}
+/*
+.ck-editor { color:green; }
+.wrapper{display:flex; margin:20px auto}
+input[type=text]{width:100%; margin-bottom:20px}
+textarea{width:100%; }
+button{display:block; margin-top:20px; margin:0 auto}
+*/
+{%if perms.blog.can_edit%}
+{%else%}
+<h1 style='color:red'>No permission granted!</h1>
+{%endif%}
+<script src="https://cdn.ckeditor.com/ckeditor5/10.0.1/classic/ckeditor.js"></script>
+<script>
+ClassicEditor.create(document.querySelector('#editor') ).catch( error => {
+            console.error( error );
+        } );
+{%endcomment%}

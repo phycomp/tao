@@ -1,0 +1,28 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'Gallery: Multiple pictures uploaded'%}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+main{margin:auto; }
+form{flex:1; }
+</style>
+{%endblock STYLE%}
+{%block MAIN %}
+<main>
+<h3></h3>
+<form enctype=multipart/form-data method=POST action={%url 'gallery-add'%} autocomplete=on validate>
+	<input type=hidden name=csrfmiddlewaretoken value={{csrf_token}}><br>
+	<input type=text name=gallery_name title={%trans 'required'%} error={%trans 'required'%} placeholder="{%trans 'Gallery Name'%}" required><br>
+	<input type=file name=pics value={%trans 'Upload Pictures'%} multiple><br>
+<button>{%trans 'Upload Multiple Pictures'%}</button>
+</form>
+</main>
+{%endblock MAIN%}
+{%comment%} avatar_tags
+<img src={%url 'thumbnail' user.avatar.latest.id 40%}>{% csrf_token %}
+{{ upload_avatar_form.as_p }}
+{% avatar user %}
+{% if not avatars %}
+<p>{% trans 'You haven't uploaded an avatar yet. Please upload one now.' %}</p>
+{% endif %}
+{%endcomment%}

@@ -1,0 +1,39 @@
+onsubmit='return checkEmail()' 
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)}
+</script>
+/*button{font-size:2vw; display:block; margin:0 auto; }
+*/
+, e=getElement('input[name=email]')
+function rtrv_info(evt){
+	email=e.value;
+	data=JSON.stringify({email:email}); 
+	};
+	if(form.checkValidity()){
+		xhr.data_sent(url, data);
+		xhr.onload=function(evt){
+			if(this.readyState==4 && this.status==200) {rspData=JSON.parse(this.response);
+				rspData.UserExisted? UserExisted=true : UserExisted=false; };
+			};
+		}
+});
+{%block CSS%}<link rel=stylesheet href="{{MEDIA_URL}}css/login.css">{%endblock CSS%}
+	<input type=password name=password pattern='.{8,}' placeholder={%trans 'password'%} required> <br>
+/*
+xhr.open('POST', "{%url 'check-email'%}", true);
+xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+//xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+//xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+xhr.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+xhr.send(data);
+*/
+//var csrfmiddlewaretoken=document.getElementsByName('csrfmiddlewaretoken')[0].value;
+//var data= //csrfmiddlewaretoken:'{{csrf_token}}',
+//var formData=new FormData(); //formData.append('email', email);

@@ -1,0 +1,65 @@
+{%load i18n%}
+        <nav>
+        <div id=logo>{%trans 'TAO'%}</div>
+        <label for=drop class=toggle>&#9776;MENU</label>
+        <input type=checkbox id=drop />
+            <ul class=menu>
+                <li><a href={%url 'home'%}>{%trans 'Home'%}</a></li>
+                <li>
+                    <label for="drop-1" class=toggle>{%trans 'user'%}>></label>
+                    {%if user.is_authenticated%}
+                    <a href={%url 'password-reset'%}>{%trans 'reset-password'%}</a>
+                    <input type=checkbox id="drop-1"/>
+                    <ul>
+                        <li><a href={%url 'edit-profile'%}>{%trans 'edit-profile'%}</a></li>
+                        <li><a href={%url 'logout'%}>{%trans 'logout'%}</a></li>
+                        <li><a href="">Tutorials</a></li>
+                    </ul> 
+                    {%else%}
+                    <a href={%url 'login'%}>{%trans 'login'%}</a>
+                    <ul>
+                        <li><a href={%url 'signup'%}>{%trans 'signup'%}</a></li>
+                        <li><a href="#">Plugins</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                    </ul> 
+                    {%endif%}
+                </li>
+                <li>
+                <!-- First Tier Drop Down -->
+                <label for="drop-2" class="toggle">{%trans 'blog'%}>></label>
+                <a href="#">Web Design</a>
+                <input type=checkbox id="drop-2"/>
+                <ul>
+                    <li><a href="#">Resources</a></li>
+                    <li><a href="#">Links</a></li>
+                    <li>
+                    <!-- Second Tier Drop Down -->        
+                    <label for="drop-3" class=toggle>Tutorials +</label>
+                    <a href="#">Tutorials</a>         
+                    <input type="checkbox" id="drop-3"/>
+                    <ul>
+                        <li><a href="#">HTML/CSS</a></li>
+                        <li><a href="#">jQuery</a></li>
+                        <li><a href="#">Other</a></li>
+                    </ul>
+                    </li>
+                </ul>
+                </li>
+                <label for="drop-1" class="toggle">{%trans 'sutra'%}>></label>
+                <li><a href={%url 'sutras'%}>{%trans 'sutra'%}</a>
+                    <ul>
+                        <li><a href={%url "sutra-add"%}>{%trans "sutra add"%}</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Inspiration</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+<link rel=stylesheet href={{MEDIA_URL}}css/search.css>
+<div class=box>
+  <div class=container-2>
+      <span class=icon><i class="fa fa-search"></i></span>
+      <input type=search id=search placeholder="Search...">
+  </div>
+</div>
+        </nav>

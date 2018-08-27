@@ -1,0 +1,39 @@
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)}
+</script>
+/*<link rel=stylesheet href="{{MEDIA_URL}}css/login.css">
+h3:hover{color:darkskyblue; font-weight:bold; }
+input[type=password], input[type=text]{margin:4px; width:100%; padding:10px; }
+input[type=submit], input[type=password], input[type=text]
+*/
+//console.log('UserExisted'); //form.submit();
+/*var xhr=new XMLHttpRequest();
+var ajax_url="{%url 'login'%}", redirect_url="{%url 'home'%}";
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		this.send(data);
+	};
+username, password, u=getElement('input[name=username]'), p=getElement('input[name=password]');
+function rtrv_info(evt){
+	username=u.value; password=p.value;
+	data=JSON.stringify({username:username, password:password});
+	};
+*/
+		//xhr.onload=function(evt)
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)}
+</script>

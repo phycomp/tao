@@ -1,0 +1,54 @@
+<form action="AddCreditCard" method="post" validate>
+<h2>新增信用卡信用卡綁定必須使用本人的信用卡</h2>
+<div> 信用卡卡號</div>
+<div class="input_box"> 請輸入台灣發行的信用卡卡號</div>
+<div class="input_box">請輸入信用卡卡號</div>
+<div class="input_box">卡號格式錯誤，請重新輸入</div>
+<input maxlength="4" class="creditNum" data-val="true" data-val-regex="信用卡格式錯誤" data-val-regex-pattern="^[0-9]{4}$" data-val-required="卡號不可空白" name="CardPart1" size="10" type="text" value="">
+<span class="dash">-</span>
+<input maxlength="4" class="num_short creditNum" data-val="true" data-val-regex="信用卡格式錯誤" data-val-regex-pattern="^[0-9]{4}$" data-val-required="卡號不可空白" name="CardPart2" size="10" type="text" value="">
+<span class="dash">-</span>
+<input maxlength="4" class="num_short creditNum" data-val="true" data-val-regex="信用卡格式錯誤" data-val-regex-pattern="^[0-9]{4}$" data-val-required="卡號不可空白" name="CardPart3" size="10" type="text" value="">
+<span class="dash">-</span>
+<input maxlength="4" class="num_short creditNum" data-val="true" data-val-regex="信用卡格式錯誤" data-val-regex-pattern="^[0-9]{4}$" data-val-required="卡號不可空白" name="Card4No" size="10" type="text" value="">
+&nbsp;<img class="picCreadit" src="./AddCreditCard_files/creditcard_visa_a.png" style="display:none;">
+<img class="picCreadit" src="./AddCreditCard_files/creditcard_master_a.png" style="display:none;">
+<img class="picCreadit" src="./AddCreditCard_files/creditcard_jbc_a.png" style="display:none;">
+<span style="font-size: 12px;" id="showBankName"></span>
+<div>卡片有效日</div>
+<div class="input_box">請輸入有效月份</div>
+<div class="input_box">請輸入有效年份</div>
+<div class="input_box">請輸入有效月／年</div>
+<div class="input_box">信用卡有效期限錯誤！ </div>
+<input class="ExpireDate" data-val="true" data-val-regex="信用卡有效期限格式錯誤" data-val-regex-pattern="^(0?[1-9]|1[012])$" data-val-required="信用卡有效期限(月)請輸入月份" maxlength="2" minlength="2" name="AuthExpireDateMM" placeholder="MM" type="text" value="">
+<input class="ExpireDate" data-val="true" data-val-regex="信用卡有效期限格式錯誤" data-val-regex-pattern="^(1?[6-9]|2[0-9]|3[0-9])$" data-val-required="信用卡有效期限(年)請輸入年份" maxlength="2" minlength="2" name="AuthExpireDateYY" placeholder="YY" type="text" value="">
+                    <div>信用卡背後末三碼</div>
+                    <div class="input_box">請輸入卡片背面末三碼數字</div>
+                    <div class="input_box">請輸入數字（請注意數字格式限半型）</div>
+<input maxlength="3" class="" data-val="true" data-val-regex="末3碼格式錯誤" data-val-regex-pattern="^[0-9]{3}$" data-val-required="末3碼不可空白" name="AuthCode" type="text" value="">
+<img src="./AddCreditCard_files/creditcard_visa.png">
+<span class="red">(此欄位為驗證之需，歐付寶不予以記錄)</span>
+                            <div>身分證字號</div>
+                        <input value="P121*****381" name="IDNO" placeholder="" readonly="True" style="width: 250px;" type="text">
+                <div>信用卡別名<span class="input-name-tip">(非必填)</span></div>
+                    <div class="alert_box input_error Alias_empty Alias_err" style="display: none;">
+                        <div class="input_arrow_r">
+                        </div>
+                <div class="input_box">信用卡別名僅限10個字，可使用符號僅限半型「@」、「-」、「&amp;」及空格(空格不可連續輸入，且頭尾不可空格)</div>
+<input maxlength="10" data-val="true" data-val-length="長度限制10個字元" data-val-length-max="10" name="Alias" placeholder="方便綁定多張信用卡時辨識用" style="width: 250px;" type="text" value=""></td>
+                
+            </tr>
+            <tr>
+<div>是否為預設卡</div>
+<div>是</div><input checked="checked" data-val="true" data-val-number="The field IsDefault must be a number." data-val-required="IsDefault 欄位是必要項" name="IsDefault" type="radio" value="1">
+<div>否</div><input name="IsDefault" type="radio" value="0">
+</div>
+<input checked="checked" name="Agree" style="vertical-align: top; margin-top: 3px;" type="checkbox" value="true"><input name="Agree" type="hidden" value="false">我已瞭解並同意將以上資訊經由台新國際商業銀行或聯邦商業銀行傳輸至信用卡授權轉接處理中心(即財團法人聯合信用卡處理中心或財金資訊股份有限公司)再傳輸至發卡機構進行身分驗證等相關作業
+<ol><li>目前信用卡自動儲值僅開放<font color="red">兆豐銀行</font>
+</li><li>信用卡提供綁定之銀行(32家)：<font color="red">兆豐、花旗、玉山、中信、台新、匯豐、永豐、新光、元大(含大眾)、遠東、凱基、安泰、華南、國泰、日盛、第一、永旺、樂天、陽信、富邦、上海、聯邦、合庫、台企、彰銀、華泰、三信、台中、土地、高雄、台銀、星展(含澳盛)</font></li> 
+<li>簽帳金融卡提供綁定之銀行(5家)：<font color="red">兆豐、玉山、中信、台新、新光</font></li> 
+<li>綁定信用卡將會進行刷卡驗證卡片有效性，請放心您<font color="red">無須支付任何費用</font></li> 
+<li>僅支援實體信用卡進行綁定，如使用虛擬信用卡綁定會導致身分驗證失敗(例: 遠東商銀iC虛擬卡號)</li>
+<li>信用卡成功交易之否認，如經判定為本人或授權刷卡的行為，相關損失，費用需自行負擔</li></ol>
+<button>submit</button>
+</form>

@@ -1,0 +1,17 @@
+	{%load i18n utils%}
+	<datalists>
+		{%with commentorID=comment.commentor_id userID=user.id body=comment.body commentor=comment.commentor cid=comment.id timestamp=comment.timestamp%}
+		<output>
+		{%if commentorID == userID%}<div onclick='commentBlogSelfDelete(this)' cid={{cid}}>delete</div>
+		<a href={%url 'profile' commentorID%}><img src={%url 'avatar-member' commentorID%} class=small></a>
+		<div onclick='commentBlogSelfEdit(this, event)' cid={{cid}}>edit</div>
+		{%else%}
+		<a href={%url 'profile' commentorID%}><img src={%url 'avatar-member' commentorID%} class=small></a>
+		{%endif%}
+		</output>
+		<summary style='flex:9'>
+			<div>{{body}}</div>
+			<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		</summary>
+		{%endwith%}
+	</datalists>

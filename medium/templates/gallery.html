@@ -1,0 +1,34 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'Gallery'%}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+main{flex:1; flex-flow:wrap; align-items:flex-start; }
+section{flex:1; flex-flow:wrap; justify-content:center; }
+figure{max-width:400px;  }
+/*section:hover{opacity:9; }*/
+/*
+figcaption{flex:1; }
+figure div{text-align:center; display:flex; }
+*/
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%for gallery in user.user_gallery.all%}
+<section>
+<figcaption>{{gallery.gallery}}</figcaption>
+	{%for picture in gallery.picture.all%}
+	<figure>
+	<div><img src={%url 'avatar-raw' picture.id%} alt={{picture.media.name}}></div>
+	<div><a href={%url 'avatar-delete' picture.id%}>{%trans 'delete'%}</a></div>
+	</figure>
+	{%endfor%}
+</section>
+{%endfor%}
+</main>
+{%endblock MAIN%}
+{%comment%}
+<div><img src={%url 'thumbnail' avatar.id 40%}></div>
+ style='width:80px;height:80px'
+{%endcomment%}

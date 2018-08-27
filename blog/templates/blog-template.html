@@ -1,0 +1,25 @@
+	{%load i18n utils%}
+	{%with perm=blog|grant_permission:user title=blog.title.title body=blog.post.body medium=blog.post.media.all author=blog.post.author aid=blog.post.author.id bid=blog.id%}
+	<article bid={{bid}}>
+	<output>
+	{%if perm%}<div onclick='blogDelete(this, event)' bid={{bid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' aid%}"><img title={{author}} alt={{author}} class=small src={%url 'avatar-member' aid%}></a></div>
+	{#<div><a href={%url 'blog-edit' bid%}>{%trans 'edit'%}</a></div>#}
+	<div onclick='blogCtxEdit(this, event)' bid={{bid}}>ctxEdit</div>
+	{%else%}
+	<div><a href="{%url 'profile' aid%}"><img alt={{author}} class=small src={%url 'avatar-member' aid%}></a></div>
+	{%endif%}
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{blog.timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<div><a href={%url 'blog-detail' bid%}>{{body}}</a></div>
+		{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+				{%endif%}
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	</article>
+	{%endwith%}

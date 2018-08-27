@@ -1,0 +1,308 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block TITLE%}-{{blog.title.title}}{%endblock TITLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}
+let rspData, selvID, flexForm, flexFormID='blogFF', txtarea, output, DIV, BODY, cid, article, bid, inputHidden
+
+
+function commentBlogSelfDelete(obj)
+	{ data=JSON.stringify({selvID:obj.getAttribute('selvID')})
+	xhr.data_sent("{%url 'blog-comment-self-delete'%}", data)
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+			if(rspData.commentBlogSelfDelete){obj.parentNode.parentNode.remove()}
+			else console.log('CommentBlogSelf Not Deleted')}
+		}
+	}
+
+function createFlexForm()
+	{flexForm=document.createElement('form'); flexForm.id=flexFormID; flexForm.method='post'
+	flexForm.style.display='flex'; flexForm.style.width='100%'
+	txtarea=document.createElement('textarea'); btn=document.createElement('button'); btn.innerHTML='Blog Edit'; btn.style.flex=1;
+	txtarea.rows=1; flexForm.appendChild(txtarea); flexForm.appendChild(btn) }
+
+function commentBlogSelfEdit(obj)
+	{ output=obj.parentNode; datalists=output.parentNode; DIV=output.nextElementSibling.getElementsByTagName('div')[0]
+	selvID=obj.getAttribute('selvID'), article=obj.parentNode.parentNode
+	flexForm=document.getElementById(flexFormID)
+	if(!document.contains(flexForm))createFlexForm()
+	txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('submit', function cBSE(event)
+		{ data=JSON.stringify({selvID:selvID, body:txtarea.value})
+		xhr.data_sent("{%url 'blog-comment-self-edit'%}", data)
+		xhr.onreadystatechange=function(evt)
+			{if(this.readyState==4&&this.status==200)
+				{rspData=JSON.parse(this.responseText)
+				if(rspData.commentBlogSelfEdit){DIV.innerHTML=txtarea.value; flexForm.removeEventListener('submit', cBSE); datalists.parentNode.removeChild(flexForm) }
+				else console.log('CommentSutra Not Deleted') }
+			}
+		event.preventDefault()}, false)
+	}
+
+function commentBlogEdit(obj, evt)
+	{ output=obj.parentNode.nextElementSibling; DIV=output.getElementsByTagName('div')[0]; BODY=querySelector('body')
+	cid=obj.getAttribute('cid'); article=obj.parentNode.parentNode;
+	flexForm=document.getElementById(flexFormID)
+	if(!document.contains(flexForm)) createFlexForm()
+	txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('submit', function cBE(event)
+		{ data=JSON.stringify({cid:obj.getAttribute('cid'), body:txtarea.value})
+		xhr.data_sent("{%url 'blog-comment-edit'%}", data)
+		xhr.onreadystatechange=function(event)
+			{ if(this.readyState==4&&this.status==200)
+				{ rspData=JSON.parse(this.responseText)
+				if(rspData.commentBlogEdited){DIV.innerHTML=txtarea.value; flexForm.removeEventListener('submit', cBE); BODY.removeChild(flexForm)}
+				else console.log('CommentBlog Not Edited') }
+			}
+		event.preventDefault()}, false)
+	}
+
+function commentBlogDelete(obj)
+	{ data=JSON.stringify({cid:obj.getAttribute('cid')})
+	xhr.data_sent("{%url 'blog-comment-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{rspData=JSON.parse(this.responseText)
+			if(rspData.commentBlogDelete){obj.parentNode.parentNode.remove()}
+			else console.log('CommentBlog Not Deleted') }
+		}
+	}
+
+function commentBlog(event, obj)
+	{ inputHidden=obj.getElementsByTagName('input')[0]; bid=inputHidden.getAttribute('bid')
+	txtarea=obj.getElementsByTagName('textarea')[0]; body=txtarea.value
+	data=JSON.stringify({bid:bid, body:body})
+	xhr.data_sent("{%url 'blog-comment'%}", data)
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{rspData=JSON.parse(this.responseText);
+			if(rspData.blogCommented){obj.insertAdjacentHTML('afterend', rspData.ctx); obj.reset()} 
+			else console.log('comment Not Posted') }
+		}
+	event.preventDefault()
+	}
+/**/
+
+function commentBlogSelf(obj, evt){
+	body=obj.getElementsByTagName('textarea')[0].value
+	data=JSON.stringify({cid:obj.getAttribute('cid'), bid:obj.getAttribute('bid'), body:body})
+	xhr.data_sent("{%url 'blog-comment-self'%}", data)
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4&&this.status==200)
+			{rspData=JSON.parse(this.responseText)
+			if(rspData.commentBlogSelfed){obj.insertAdjacentHTML('beforebegin', rspData.ctx); obj.reset()}
+			else console.log('CommentBlogSelf Not Posted') }
+	}
+	evt.preventDefault(), false}
+
+function ONLOAD(){ }
+{%if approved%}
+let attached=document.querySelector('input[name=attached]'), blogEditor=ById('blogEditor')
+
+	blogEditor.addEventListener('submit', function(evt)
+		{ formdata=new FormData(blogEditor); 
+		if(attached.files.length)
+			{ xhr.data_sent("{%url 'blog-edit'%}", formdata);
+				xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.blogUpdated) window.location="{%url 'blog-detail' bid%}"
+					else console.log('Post Not Updated') }
+				}
+			}
+		evt.preventDefault()}, false)
+
+function blogMediaDelete(obj)
+	{ data=JSON.stringify({mid:obj.getAttribute('mid')});
+	xhr.data_sent("{%url 'blog-media-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText);
+				if (rspData.BlogMediaDeleted) obj.parentNode.remove()//;window.location=url//
+				else console.log('Media Not Deleted')}
+		}
+	}
+
+{%endif%}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+#blogEditor{width:100%; display:flex; flex-flow:column; }
+.flexForm{width:100%; display:flex; flex-flow:row; }
+.cbsBtn, .bcBtn{flex:1; }
+section{flex:1; flex-flow:row; }
+section output{flex-flow:column }
+article{margin-top:2px; }
+article div{margin:2px; }
+article:nth-child(odd){color:#00ffff}
+textarea{margin-top:2px; }
+summary{flex:9; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+{%if approved%}
+<details>
+<form id=blogEditor enctype=multipart/form-data method=POST>
+<input type=hidden value={{bid}} name=bid>
+<input type=text name=title placeholder='title' value="{{title}}" required>
+<textarea name=body placeholder=body cols=30 rows=8 required>{{body}}</textarea>
+<datalists>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+	{%for media in medium%}
+	<output>
+	{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'><div onclick='blogMediaDelete(this, event)' mid={{media.id}}>{%trans 'delete'%}</div>
+	{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+	</output>
+	{%endfor%}
+</datalists>
+<button>{%trans 'Blog Edit'%}</button>
+</form>
+</details>
+{%endif%}
+
+<section>
+	<output style='margin-right:2px'>
+		<a href={%url 'profile' bloggerID%}><img alt={{bloggerID}} class=small src={%url 'avatar-member' bloggerID%}></a>
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<div>{%autoescape off%}{{body}}{%endautoescape%}</div>
+		{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+			{%endfor%}
+		</picture>{%endif%}
+		{%if tags%}<datalists>
+			{%for tag in tags%}
+			<div><a style='margin-right:4px' href={%url 'tag-detail' tag.id%}>{{tag}}</a></div>
+			{%endfor%}
+		</datalists>{%endif%}
+	</summary>
+</section>
+<form onsubmit='commentBlog(event, this)' class=flexForm enctype='multipart/form-data' method=POST validate>
+<input type=hidden bid={{bid}}>
+<textarea name=body placeholder=body rows=1 required></textarea>
+<button class=bcBtn>{%trans 'Blog Comment'%}</button>
+</form>
+{%endblock SECTION%}
+{%block ARTICLE%}
+{%for comment in comments reversed%}
+	{%include 'blog-comment-template.html' with bid=bid%}
+	{#<textarea rows=1 cid={{cid}} blogID={{blogID}} onkeyup='commentBlogSelf(this, event)'></textarea>#}
+</summary>
+</article>
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; /*justify-content:center; align-items:center;*/ }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+/*img{width:20%; height:20%; }*/
+</style>
+<main>
+</main>
+/*function mouseCloseModal(obj){ obj.style.display='none' }
+modal.addEventListener('mousedown', function(event){
+	this.style.display='none';
+})*/
+function blogEditorToggle(obj){
+	blogEditor.style.display=blogEditorDispalyStatus?'none':'flex'
+	blogEditorDispalyStatus=!blogEditorDispalyStatus
+}
+
+		{#<div onclick='blogDelete(this)' bid={{bid}}>delete</div><div bid={{bid}} onclick='blogEditorToggle(this)'><a href={%url 'blog-edit' bid%}>{%trans 'edit'%}</a></div>#}
+/*, blogComment=document.getElementsByClassName('blogComment')[0]
+blogComment.addEventListener('submit', function(evt){
+	formdata=new FormData(blogComment); 
+	xhr.data_sent("{%url 'blog-comment'%}", formdata)
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+		if (rspData.blogCommented) window.location="{%url 'blog-detail' bid%}"
+		else console.log('Blog Not Commented') }
+	}
+	evt.preventDefault()}, false)
+*/
+
+		{%if approved%}<div onclick='blogCtxEdit(this)' bid={{bid}}>{%trans 'ctxEdit'%}</div>{%endif%}
+function blogCtxEdit(obj)
+	{ let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[1]
+	let bid=obj.getAttribute('bid'), section=summary.parentNode
+	if(!document.contains()) txtarea=document.createElement('textarea')
+	txtarea.rows=1; txtarea.id='bE'; txtarea.value=DIV.innerHTML; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function bE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({bid:bid, body:body})
+			xhr.data_sent("{%url 'blog-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.blogCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', bE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentBlog Not Deleted') }
+				}
+			}
+	})
+}
+
+/*function blogDelete(obj){
+	var data=JSON.stringify({bid:obj.getAttribute('bid')});
+	console.log(data);
+	xhr.data_sent("{%url 'blog-delete'%}", data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.BlogDeleted) obj.parentNode.parentNode.parentNode.innerHTML="<div style='color:red'>Blog removed!</div>";//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+			else console.log('Blog Not Deleted'); };
+		};
+}*/
+{%endcomment%}

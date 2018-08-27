@@ -1,0 +1,13 @@
+	<datalists>
+		{%with commentor=comment.commentor cid=comment.id%}
+		<output>
+			<div cid={{cid}} onclick='commentSutraSelfDelete(this)'>delete</div>
+			<div><img src={%url 'avatar-member' commentor.id%} style='width:40px;height:40px'></div>
+			<div cid={{cid}} onclick='commentSutraSelfEdit(this)'>edit</div>
+		</output>
+		<summary>
+			<div>{{comment.body}}</div>
+			<div><time>{{comment.timestamp|timesince}} ago</time></div>
+		</summary>
+		{%endwith%}
+	</datalists>

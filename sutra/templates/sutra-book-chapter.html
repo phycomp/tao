@@ -1,0 +1,26 @@
+{%extends 'base.html'%}
+{%block TITLE%}-{{chapter}}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+main{display:inherit; flex-flow:column wrap; justify-content:flex-start; }
+section{flex:1; margin-top:6px; display:flex; flex-flow:row wrap; }
+output{flex:1; }
+summary{flex:20; }
+summary:hover{font-weight:bold; }
+/*flex-flow:column; */
+section div:hover{color:pink; font-weight:bold; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+<h1>{{chapter}}</h1>
+{%for sutra in sutras%}
+{%with sid=sutra.id section=sutra.section body=sutra.post.body%}
+<section>
+	<output>{{section}}</output>
+	<summary>
+	<a href={%url 'sutra-detail' sid%}>{{body}}</a>
+	</summary>
+</section>
+{%endwith%}
+{%endfor%}
+{%endblock SECTION%}

@@ -1,0 +1,364 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block SCRIPT%}
+<script>
+var rspData, main=querySelector('main')
+
+function commentSutraSelfEdit(obj){
+	let output=obj.parentNode, datalists=output.parentNode, DIV=output.nextElementSibling.getElementsByTagName('div')[0]
+	let cid=obj.getAttribute('cid'), article=obj.parentNode.parentNode
+	txtarea=document.getElementById('cSSE')
+	if(!document.contains(txtarea)) txtarea=document.createElement('textarea')
+	txtarea.rows=1; txtarea.id='cSSE'; txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function cSSE(event){
+		data=JSON.stringify({cid:cid, body:this.value})
+		if (event.keyCode===13&&event.altKey&&this.value){
+			xhr.data_sent("{%url 'sutra-comment-self-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.commentSutraSelfEdit) { DIV.innerHTML=txtarea.value; txtarea.value=''
+					txtarea.removeEventListener('keydown', cSSE)
+					datalists.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentSutra Not Deleted') }
+				}
+			}
+	}, )
+}
+function commentSutraSelf(obj, evt){
+	data=JSON.stringify({cid:obj.getAttribute('cid'), sid:obj.getAttribute('sid'), body:obj.value})
+	if (evt.keyCode===13&&evt.altKey&&obj.value){xhr.data_sent("{%url 'sutra-comment-self'%}", data)
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.commentSutraSelf) { obj.insertAdjacentHTML('beforebegin', rspData.ctx)
+					obj.value='' }
+				else console.log('CommentSutraSelf Not Posted') }
+			
+		}
+	}
+}
+
+function commentSutraEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[0]
+	let cid=obj.getAttribute('cid'), article=obj.parentNode.parentNode
+	txtarea=document.getElementById('cSE')
+	if(!document.contains(txtarea)) txtarea=document.createElement('textarea')
+	txtarea.rows=1; txtarea.id='cSE'; txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function cSE(event){
+		data=JSON.stringify({cid:cid, body:this.value})
+		if (event.keyCode===13&&event.altKey&&this.value){
+			xhr.data_sent("{%url 'sutra-comment-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.commentSutraEdit) { DIV.innerHTML=txtarea.value; txtarea.value=''
+					txtarea.removeEventListener('keydown', cSE); main.removeChild(txtarea) }
+					else console.log('CommentSutra Not Deleted') }
+				}
+			}
+	}, )
+}
+
+function commentSutraDelete(obj){
+data=JSON.stringify({cid:obj.getAttribute('cid')})
+xhr.data_sent("{%url 'sutra-comment-delete'%}", data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.commentSutraDelete) { obj.parentNode.parentNode.remove(); }
+				else console.log('CommentSutra Not Deleted') }
+			}
+
+}
+function commentSutraSelfDelete(obj){
+data=JSON.stringify({cid:obj.getAttribute('cid')})
+xhr.data_sent("{%url 'sutra-comment-self-delete'%}", data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.commentSutraSelfDelete) { obj.parentNode.parentNode.remove();}
+				else console.log('CommentSutraSelf Not Deleted') }
+			}
+}
+//function commentSutra(obj, evt){ }//data=JSON.stringify({sid:obj.getAttribute('sid'), body:obj.value})//if(evt.keyCode===13&&evt.altKey)
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+section{flex:1; }
+summary{flex:1; }
+hgroup{flex:1; padding-top:2px; }
+section div{flex:1; margin:2px; }
+textarea{margin-top:2px; }
+article{margin-top:4px; }
+article:nth-child(odd){color:#00ffff}
+summary{padding-right:1px; }
+datalists, output{margin:2px; }
+@media all and (max-width:600px){
+#commentSutra{display:none; }
+/*#sutraComment{display:block; width:100%; }
+#sutraComment{display:flex; align-items:center; width:100%;}*/
+}
+</style>
+{%endblock STYLE%}
+{%block EXTRA%}
+<hgroup>
+<summary>
+	<div><input id=pitch type=range title=pitch value=.5 min=0 max=1 step=.05></div>
+	<div><button type=button onclick="resetPitch()">Reset pitch</button></div>
+	<div><input id=rate type=range title=rate value=0 min="-3" max=3 step=.25></div>
+	<div><button type=button onclick="resetRate()">Reset rate</button></div>
+	<div><button>Stop</button></div>
+</summary>
+<summary>
+	<div><input id=volume type=range title='Reset volume' value=.5 min=0 max=1 step=.05></div>
+	<div><button type=button onclick='resetVolume()'>Reset volume</button></div>
+	<div><select id=voiceOptions><option>Select A voice</option></select></div>
+	<div><button type=button title="Reset voice" onclick='resetVoice()'>Reset voice</button></div>
+	<div><button>Speak</button></div>
+</summary>
+</hgroup>
+{%endblock EXTRA%}
+{%block SECTION%}
+{%with body=sutra.post.body bkID=sutra.book_id chID=sutra.chapter_id book=sutra.book chapter=sutra.chapter.chapter%}
+<section>
+	<output>
+	<div><a href={%url 'sutra-book' bkID%}>{{book}}</a></div>
+	<div><a href={%url 'sutra-book-chapter' bkID chID%}>{{chapter}}</a></div>
+	</output>
+	<div style='flex:9'>{{body}}</div>
+</section>
+{#<textarea id=commentSutra rows=1 sid={{sid}} onkeyup='commentSutra(this, event)' placeholder="{%trans 'sutra Comment'%}"></textarea>#}
+<form class=flexForm id=sutraComment enctype='multipart/form-data' method=POST validate>
+<textarea name=body cols=1 rows=2 required></textarea>
+<input type=hidden name=sid value={{sid}}>
+{#<input type=file name=attached multiple>#}
+<button style='flex:1'>{%trans 'Sutra Comment'%}</button>
+</form>
+{%endwith%}
+<script>
+let sutraComment=document.getElementById('sutraComment')
+	sutraComment.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData
+		formdata=new FormData(sutraComment);
+		xhr.data_sent("{%url 'sutra-comment'%}", formdata); //xhr.data_sent(url, formdata);
+		xhr.onreadystatechange=function(evt)
+			{if(this.readyState==4&&this.status==200)
+				{rspData=JSON.parse(this.responseText);
+				if(rspData.commentSutraPosted){article.insertAdjacentHTML('beforebegin', rspData.ctx); sutraComment.reset()}
+				else console.log('Forum Not Added') }
+			}
+		evt.preventDefault()}, false)
+</script>
+{%endblock SECTION%}
+{%block ARTICLE%}
+{%for comment in comments reversed%}
+<article>
+{%with cid=comment.id timestamp=comment.timestamp body=comment.body cmtID=comment.commentor.id%}
+<output style='margin-right:2px'>
+	{%if cmtID == userID%}
+	<div onclick='commentSutraDelete(this)' cid={{comment.id}}>delete</div>
+	<div><a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a></div>
+	<div onclick='commentSutraEdit(this)' cid={{cid}}>edit</div>
+	{%else%}<div><a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a></div>{%endif%}
+</output>
+<summary>
+	<div>{{body}}</div>
+	{%comment%}
+	{%if medium%}<picture>
+		{%for media in medium%}
+		{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+		{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+		{%endif%}
+		{%endfor%}
+	</picture>{%endif%}
+	{%endcomment%}
+	<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	{%for comment_selv in comment|commentsutraself%}
+	{%with cmtID=comment_selv.commentor_id cid=comment_selv.id body=comment_selv.body timestamp=comment_selv.timestamp%}
+	<datalists>
+		<output>
+			<div cid={{cid}} onclick='commentSutraSelfDelete(this)'>delete</div>
+			<div><img alt={{cmtID}} src={%url 'avatar-member' cmtID%} class=small></div>
+			<div cid={{cid}} onclick='commentSutraSelfEdit(this)'>edit</div>
+		</output>
+		<summary>
+			<div>{{body}}</div>
+			{%if medium%}<picture>
+				{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+				{%endif%}
+				{%endfor%}
+			</picture>{%endif%}
+			<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		</summary>
+	</datalists>
+	{%endwith%}
+	{%endfor%}
+	<textarea rows=1 cid={{comment.id}} sid={{sid}} onkeyup='commentSutraSelf(this, event)'></textarea>
+</summary>
+{%endwith%}
+</article>
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+sutraComment.addEventListener('submit', function(evt){
+	article=querySelector('article')
+	if(!document.contains(article))article=newData
+	formdata=new FormData(sutraComment)
+	xhr.data_sent("{%url 'sutra-comment'%}", formdata)
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200)
+			{rspData=JSON.parse(this.responseText)
+			if(rspData.commentSutraPosted){obj.insertAdjacentHTML('afterend', rspData.ctx); obj.value=''}
+			else console.log('CommentSutra Not Posted')}
+		}
+	evt.preventDefault(), false}
+
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; /*justify-content:center; align-items:center;*/ }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+/*img{width:20%; height:20%; }*/
+</style>
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+	//cSE{capture:true}
+ta.addEventListener('keyup', evt=>{
+if (evt.keyCode==13&&evt.altKey)
+	{//formdata=new FormData(form);
+		data=JSON.stringify({sid:ta.getAttribute('sid'), body:ta.value});
+		xhr.data_sent(ajax_url, data)
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.commentPosted) {
+					ta.insertAdjacentHTML('afterend', rspData.ctx)
+					ta.value='' } 
+				else console.log('comment Not Posted') }
+			}
+	}
+})
+const synth=window.speechSynthesis;
+const msg=new SpeechSynthesisUtterance(); //var msg=new SpeechSynthesisUtterance();
+var voices;
+var voiceOptions = getElement('voiceOptions');
+var voiceMap = [];
+//var voices = synth.getVoices();
+function checkCompatibilty () {
+			if(!('speechSynthesis' in window)) console.log('browser not supported. please upgrade google chrome');
+}
+checkCompatibilty();
+
+
+function loadVoices () {
+	for (var i = 0; i < voices.length; i++) {
+		var voice = voices[i];
+		var option = document.createElement('option');
+		option.value = voice.name;
+		option.innerHTML = voice.name;
+		voiceOptions.appendChild(option);
+		voiceMap[voice.name] = voice;
+	};
+};
+
+synth.onvoiceschanged=function(e){ 
+	voices=this.getVoices();
+	loadVoices() 
+};
+<label></label><select id=voices name=voice></select>
+<button onclick='speak()'>{%trans 'sutra read'%}</button>
+main div:hover{color:cyan; font-weight:bold; }
+<audio id=sutraAudio preload=auto></audio>
+
+u.user_avatar.last()
+src="audio/example.wav" 
+<a href={%url 'comment' comment.id%}>{{comment}}</a>comment.author.user_avatar.last.id
+<a href='{%url member comment.author.id%}'></a>
+//var transURL;	//='http://translate.google.com/translate_tts?tl=zh&q=';
+var sutraBody=document.querySelector('.sutra-body');
+//var sutraAudio=document.getElementById('sutraAudio');
+var tranSource=sutraBody.innerText;
+//tranSource=encodeURIComponent(tranSource);
+//console.log(tranSource);
+
+function play(){
+	transURL='http://translate.google.com/translate_tts?ie=utf-8&tl=zh&q='+tranSource;
+	sutraAudio.src =transURL;
+	sutraAudio.play(); 
+}
+const voiceDropDown=getElement('select[name=voice]');
+/*
+ta.addEventListener('keypress', evt=>{
+ xhr.data_sent(ajax_url, this.value);
+})
+
+function speak(evt){
+	evt.preventDefault();
+	//msg.volume=volumeSlider.value;
+	msg.voice=voiceMap[voiceOptions.value];
+	//msg.rate=rateSlider.value;
+	//msg.Pitch=pitchSlider.value;
+	console.log(sutraBody.innerText);
+	msg.text=sutraBody.innerText;
+	window.speechSynthesis.speak(msg);
+	//play();
+};
+*/
+/*
+main div{flex:1; margin:1px; }flex-flow:column; 
+button{flex:1; height:fit-content; margin:1px; }
+textarea{flex:1; }
+button[type=button]{width:100%; height:auto; }
+section{display:inherit; }
+*/
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)};
+</script>
+{%endcomment%}

@@ -1,0 +1,170 @@
+{%extends 'base.html'%}
+{#{%load i18n%}#}
+{%block XHR%}
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)};
+</script>
+{%endblock XHR%}
+{%block SCRIPT%}
+<script>
+var rspData, data
+const ta=getElement('textarea'), ajax_url="{{url('sutra-comment')}}"
+ta.addEventListener('keyup', evt=>{
+if (evt.keyCode==13&&evt.altKey)
+	{//formdata=new FormData(form);
+		data=JSON.stringify({sid:ta.getAttribute('sid'), body:ta.value});
+		xhr.data_sent(ajax_url, data)
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.commentPosted) {
+					ta.insertAdjacentHTML('afterend', rspData.ctx)
+					ta.value='' } 
+				else console.log('comment Not Posted') }
+			}
+	}
+})
+function commentSutraSelf(obj, evt){
+	data=JSON.stringify({cid:obj.getAttribute('cid'), body:obj.value})
+	comment_sutra_url="{{url('comment-sutra-self')}}"
+	if (evt.keyCode===13&&evt.altKey){xhr.data_sent(comment_sutra_url, data)
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.CommentSutraSelf) { obj.insertAdjacentHTML('beforebegin', rspData.ctx)
+					obj.value='' }
+				else console.log('CommentSutraSelf Not Posted') }
+			
+		}
+	}
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{flex-flow:column; }
+section{flex-flow:row; flex:1; }
+section div{flex:1; margin:2px; }
+article{margin-top:2px; }
+article div{flex:1; padding:2px; }
+textarea{margin-top:6px; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<section>
+<div><a href={{url('sutra-book', args=[sutra.book.id])}}>{{sutra.book}}</a></div>
+<div><a href={{url('sutra-book-chapter', args=[sutra.book.id, sutra.chapter.id])}}>{{sutra.chapter.chapter}}</a></div>
+<div style='flex:9'>{{sutra.body}}</div>
+</section>
+<section>
+<div>
+<div><input id=pitch type=range title=pitch value=.5 min=0 max=1 step=.05></div>
+<div><button type=button onclick="resetPitch()">Reset pitch</button></div>
+<div><input id=rate type=range title=rate value=0 min="-3" max=3 step=.25></div>
+<div><button type=button onclick="resetRate()">Reset rate</button></div>
+<div><button>Stop</button></div>
+</div>
+<div>
+<div><input id=volume type=range title='Reset volume' value=.5 min=0 max=1 step=.05></div>
+<div><button type=button onclick='resetVolume()'>Reset volume</button></div>
+<div><select id=voiceOptions><option>Select A voice</option></select></div>
+<div><button type=button title="Reset voice" onclick='resetVoice()'>Reset voice</button></div>
+<div><button>Speak</button></div>
+</div>
+</section>
+<textarea rows=1 sid={{sutra.id}}></textarea>
+{%for comment in sutra.sutra_commentsutra.filter.comments%}
+<article>
+<div><a href={{url('profile', args=[comment.commentor.id])}}><img src={{url('avatar-member', args=[comment.commentor.id])}} style='with:40px;height:40px'>{{comment.id}}</a></div>
+<div style='flex:9'><div>{{comment.body}}</div>
+	<div>{{comment.timestamp}} ago</div>
+	<div><textarea rows=1 cid={{comment.id}} onkeyup='commentSutraSelf(this, event)'></textarea></div>
+</div>
+</article>
+{%endfor%}
+</main>
+{%endblock MAIN%}
+{#
+{$comment%}
+const synth=window.speechSynthesis;
+const msg=new SpeechSynthesisUtterance(); //var msg=new SpeechSynthesisUtterance();
+var voices;
+var voiceOptions = getElement('voiceOptions');
+var voiceMap = [];
+//var voices = synth.getVoices();
+function checkCompatibilty () {
+			if(!('speechSynthesis' in window)) console.log('browser not supported. please upgrade google chrome');
+}
+checkCompatibilty();
+
+
+function loadVoices () {
+	for (var i = 0; i < voices.length; i++) {
+		var voice = voices[i];
+		var option = document.createElement('option');
+		option.value = voice.name;
+		option.innerHTML = voice.name;
+		voiceOptions.appendChild(option);
+		voiceMap[voice.name] = voice;
+	};
+};
+
+synth.onvoiceschanged=function(e){ 
+	voices=this.getVoices();
+	loadVoices() 
+};
+<label></label><select id=voices name=voice></select>
+<button onclick='speak()'>{%trans 'sutra read'%}</button>
+main div:hover{color:cyan; font-weight:bold; }
+<audio id=sutraAudio preload=auto></audio>
+
+u.user_avatar.last()
+src="audio/example.wav" 
+<a href={%url 'comment' comment.id%}>{{comment}}</a>comment.author.user_avatar.last.id
+<a href='{%url member comment.author.id%}'></a>
+//var transURL;	//='http://translate.google.com/translate_tts?tl=zh&q=';
+var sutraBody=document.querySelector('.sutra-body');
+//var sutraAudio=document.getElementById('sutraAudio');
+var tranSource=sutraBody.innerText;
+//tranSource=encodeURIComponent(tranSource);
+//console.log(tranSource);
+
+function play(){
+	transURL='http://translate.google.com/translate_tts?ie=utf-8&tl=zh&q='+tranSource;
+	sutraAudio.src =transURL;
+	sutraAudio.play(); 
+}
+const voiceDropDown=getElement('select[name=voice]');
+/*
+ta.addEventListener('keypress', evt=>{
+ xhr.data_sent(ajax_url, this.value);
+})
+
+function speak(evt){
+	evt.preventDefault();
+	//msg.volume=volumeSlider.value;
+	msg.voice=voiceMap[voiceOptions.value];
+	//msg.rate=rateSlider.value;
+	//msg.Pitch=pitchSlider.value;
+	console.log(sutraBody.innerText);
+	msg.text=sutraBody.innerText;
+	window.speechSynthesis.speak(msg);
+	//play();
+};
+*/
+/*
+main div{flex:1; margin:1px; }flex-flow:column; 
+button{flex:1; height:fit-content; margin:1px; }
+textarea{flex:1; }
+button[type=button]{width:100%; height:auto; }
+section{display:inherit; }
+*/
+	comment_sutra_url="{%url 'comment-sutra-self'%}"
+{%url 'sutra-comment'%}"
+{%endcomment%}
+#}

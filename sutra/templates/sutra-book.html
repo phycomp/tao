@@ -1,0 +1,16 @@
+{%extends 'base.html'%}
+{%block TITLE%}-{{book}}{%endblock TITLE%}{
+{%block STYLE%}
+<style>
+main{flex-flow:row wrap; }
+main div{flex:1; display:flex; margin:10px; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<h1>{{book}}</h1>
+<main>
+{%for chapter in book.book_chapter.all%}
+<div><a href={%url 'sutra-book-chapter' book.id chapter.id%}>{{chapter}}</a></div>
+{%endfor%}
+</main>
+{%endblock MAIN%}

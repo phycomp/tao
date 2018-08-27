@@ -1,0 +1,44 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'LOGIN'%}{%endblock TITLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}
+let formdata, rspData, LOGIN=ById('LOGIN');
+function ONLOAD(){
+	LOGIN.addEventListener('submit', function(evt){
+		formdata=new FormData(LOGIN);
+		xhr.data_sent("{%url 'login'%}", formdata);
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.response);
+				if(rspData.UserExisted) window.location="{%url 'home'%}";
+				else console.log('UserNotExisted'); }
+			}
+		evt.preventDefault();
+		});
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{align-items:center; }
+#LOGIN{ margin:auto; width:50%; padding:20px; border-radius:10px}
+input{margin-top:4px; }
+@media screen and (max-width:600px) {
+	input[type=submit]{width:100%; cursor:pointer}
+}
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<form id=LOGIN action={%url 'login'%} enctype=multipart/form-data method=post autocomplete=on validate>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+	<input type=text name=username placeholder="{%trans 'cellular, email, or identifier'%}" autocomplete=username required>
+	<input type=password name=password pattern='.{8,}' placeholder={%trans 'password'%} autocomplete=current-password required>
+	<button>{%trans 'login'%}</button>
+<h3><a href={%url 'signup'%}>{%trans 'signup'%}</a> or <a href={%url 'password-forgot'%}>{%trans 'Password Forgot'%}</a></h3>
+</form>
+</main>
+{%endblock MAIN%}
+{%comment%}
+{%endcomment%}

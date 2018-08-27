@@ -1,0 +1,198 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+article div:hover{color:cyan; }
+/*article div{flex:1; }
+article div img{max-width:100%; height:auto; }*/
+output{margin-right:2px; }
+.datetime{margin-right:2px; display:flex; flex:1; }
+#geInvoke{width:100%; }
+</style>
+{%endblock STYLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()};
+let url="{%url 'ge-pagination'%}", idAttr='geID'
+window.onscroll=function(){infinitScroll(url, idAttr)};
+let goodsExchangeInvoke=ById('goodsExchangeInvoke'), rspData, formdata
+
+function goodsExchangeDelete(obj){
+	data={geID:obj.getAttribute('geID')}
+	xhr.data_sent("{%url 'ge-delete'%}", JSON.stringify(data));
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.goodsExchangeDeleted) obj.parentNode.parentNode.remove();
+			else console.log('Gallery Not Deleted')}
+	}
+}
+
+	goodsExchangeInvoke.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData;
+		formdata=new FormData(this);
+		xhr.data_sent("{%url 'ge-invoke'%}", formdata);
+		xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if(rspData.goodsExchangeInvoked){article.insertAdjacentHTML('beforebegin', rspData.ctx); goodsExchangeInvoke.reset()}
+			else console.log('goodsExchange Not Invoked') }
+		}
+		evt.preventDefault()}, false)
+
+function ONLOAD(){
+}
+
+</script>
+{%endblock SCRIPT%}
+{%block SECTION%}
+<form id=goodsExchangeInvoke enctype='multipart/form-data' method=POST validate>
+<input type=text name=title placeholder=title required>
+{#<textarea name=body cols=1 rows=2></textarea>#}
+<input type=text name=coordinate placeholder=coordinate autocomplete=coordinate required>
+<hgroup>
+<input class=datetime type=date name=date placeholder=date required>
+<input class=datetime type=time name=time placeholder=time required>
+</hgroup>
+<input type=file name=pics multiple>
+<button>{%trans 'GoodsExchange Invoke'%}</button>
+</form>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for ge in GEs%}
+	{%with title=ge.gallery.title.title coordinate=ge.coordinate datetime=ge.datetime timestamp=ge.timestamp medium=ge.gallery.picture.all ggID=ge.gallery.galler_id geID=ge.id%}
+	<article geID={{geID}}>
+	<output>
+	{%if ggID == user.id%}<div onclick='goodsExchangeDelete(this, event)' geID={{geID}}>{%trans 'delete'%}</div>
+	<div><a href={%url 'ge-edit' geID%}>{%trans 'edit'%}</a></div>
+	<div><a href="{%url 'profile' ggID%}"><img alt={{ggID}} class=small src={%url 'avatar-member' ggID%}></a></div>
+	{%else%}
+	<div><a href="{%url 'profile' ggID%}"><img alt={{ggID}} class=small src={%url 'avatar-member' ggID%}></a></div>
+	{%endif%}
+	{%if not ge.isDealt%}<div><a href={%url 'ge-apply' geID%}>{%trans 'apply'%}</a></div>{%endif%}
+	<div><a href={%url 'ge-detail' geID%}>{%trans 'detail'%}</a></div>
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<div>{{coordinate}}</div>
+		<div><time>{{datetime}}</time></div>
+			{%if medium%}<div>
+			{%for media in medium%}
+				<img class=small title='{{media.description}}' alt='{{media.description}}' src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%endfor%}
+			</div>{%endif%}
+	</summary>
+	</article>
+	{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+let newData=querySelector('.newData'), data, winnerHeight=window.innerHeight, paginationStatus=true
+
+function infinitScroll(){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset//, winnerHeight=window.innerHeight;
+	geID=newData.previousElementSibling.getAttribute('geID')
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus&&geID)
+		{data=JSON.stringify({'geID':geID})
+		xhr.data_sent("/ge2ge/ge-pagination/", data)
+		paginationStatus=!paginationStatus
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState===4&&this.status===200)
+				{ rspData=JSON.parse(this.response)
+				if (rspData.newData) {paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData)}
+				else newdataStatus=false }
+			}
+		}
+}
+
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<aside></aside>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+aside{position:fixed; bottom:100px; font-size:3vw; margin:auto; width:50%; }
+</style>
+<aside>
+{%for tag in tags%}
+<span><a href={%url 'tag' tag.id%}>{{tag}}</a></span>
+{%endfor%}
+</aside>
+<main>
+</main>
+function goodsExchangeCtxEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[1]//.getElementsByTagName('div')[0]
+	let gid=obj.getAttribute('gid'), txtarea=ById('bE'), section=summary.parentNode
+	if(!document.contains(txtarea)) txtarea=createElement('textarea')
+	txtarea.rows=1; txtarea.id='bE'; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function bE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({gid:gid, body:body})
+			xhr.data_sent("{%url 'ge-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.goodsExchangeCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', bE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentBlog Not Deleted') }
+				}
+			}
+	})
+}
+
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal'), aside=querySelector('aside')
+var IMG, Images=[], IMGs={}, DESCRP={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src'); descrp=images[idx].getAttribute('alt')
+		Images.push(img)
+		IMGs[idx]=img; DESCRP[idx]=descrp}
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	aside.innerHTML=obj.getAttribute('alt')
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]; descr=DESCRP[idx+1]
+	aside.innerHTML=descr; IMG.alt=descr
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]; descr=DESCRP[idx-1]
+	aside.innerHTML=descr; IMG.alt=descr
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+{%block CSS%}
+<link href="{{MEDIA_URL}}css/quill.bubble.css" rel=stylesheet>
+<script src='{{MEDIA_URL}}js/quill.js'></script>
+{%endblock CSS%}
+{%endcomment%}

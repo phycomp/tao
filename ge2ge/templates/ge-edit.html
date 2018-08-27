@@ -1,0 +1,70 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block SCRIPT%}
+<script>
+function geMediaDelete(obj){
+	data=JSON.stringify({mid:obj.getAttribute('mid')});
+	xhr.data_sent("{%url 'ge-media-delete'%}", data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.goodsExchangeMediaDeleted) obj.parentNode.parentNode.remove();
+			else console.log('Media Not Deleted'); };
+		};
+}
+
+function mediaDescription(obj){
+	let DESCRP=obj.previousElementSibling, description=DESCRP.value
+	data=JSON.stringify({mid:obj.getAttribute('mid'), description:description});
+	xhr.data_sent("{%url 'ge-media-decription'%}", data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if(rspData.goodsExchangeMediaDescription)DESCRP.innerHTML=description//.outerHTML='<div>'+description+'</div>'
+			else console.log('Media Not Deleted'); };
+		};
+}
+
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{justify-content:center; }
+#geEdit{width:100%; }
+hgroup{flex:1; align-items:center; margin-bottom:2px; }
+/*
+.ck-editor { color:green; }
+.wrapper{display:flex; margin:20px auto}
+input[type=text]{width:100%; margin-bottom:20px}
+textarea{width:100%; }
+textarea{width:100%; border-radius:5px; margin-top:2px; }
+button{display:block; margin-top:20px; margin:0 auto}
+*/
+</style>
+{%endblock STYLE%}
+{%block ARTICLE%}
+<article>
+{%with geid=ge.id title=ge.title.title medium=ge.gallery.picture.all coordinate=ge.coordinate date=ge.date%}
+<form id=geEdit action={%url "ge-edit" geid%} enctype='multipart/form-data' method=POST>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+<input type=text name=title placeholder='title' value="{{title}}" required>
+<input type=text name=coordinate placeholder='coordinate' value="{{coordinate}}" required>
+{#<textarea name=description cols=30 rows=8 required>{{tug.description}}</textarea>#}
+<input type=file name=pics placeholder="{%trans 'attached files'%}" multiple>
+	{%if medium%}
+	{%for media in medium%}<hgroup>
+	{%with mid=media.id%}
+	<output>
+	<div onclick='geMediaDelete(this, event)' mid={{mid}}>{%trans 'delete'%}</div>
+	<img class=small src={%url 'avatar-raw' mid%}>
+	</output>
+	<input type=text mid={{mid}} placeholder='goodsexchange title' value="{{media.description}}" required>
+	<div mid={{mid}} onclick='mediaDescription(this)'>{%trans 'Description Edit'%}</div>
+	{%endwith%}
+	</hgroup>{%endfor%}
+	{%endif%}
+<button>{%trans 'GoodsExchange Edit'%}</button>
+</form>
+{%endwith%}
+</article>
+{%endblock ARTICLE%}
+{%comment%}
+{%endcomment%}

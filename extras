@@ -1,0 +1,53 @@
+/*
+main{flex-flow:wrap; }
+article{flex:1; flex-flow:column; outline:1px solid red; margin:2px; }
+article div{flex:1; }
+article div.post-body:hover{color:cyan; }
+main div.post-body{flex:9; width:100%; }
+main div.post-body div{flex:1; }
+main div.timestamp{flex:1; }
+*/
+	<form enctype=multipart/form-data method=POST validate>
+	<button>{%trans 'comment'%}</button>
+	</form>
+{{member_template}}
+function rtrv_info(evt){
+	textareaData=ta.value;
+	data=JSON.stringify({textareaData:textareaData}); 
+	};
+<div>{{sutra.title}}</div>
+/*
+<div><img src={%url 'avatar-raw' user.user_medium.last.id%}></div>
+article{flex:1 auto; margin:10px auto; flex-flow:row wrap; border-radius:5px; border:0px solid red}
+main div {max-width:400px; height:auto; }
+@media all and (max-width:324px){
+	section{padding:2px; flex-flow:column;}
+	article{flex:1; }
+	article div{overflow:hidden; }
+}
+section{justify-content:space-evenly; flex-flow:wrap; align-items:flex-start; font-size:3vw; }
+article div {padding:10px; border:0px solid blue; }
+article div div{display:block;}
+@media all and (max-width:766px){
+	section{flex-flow:column;}
+}
+.sutra > div:hover { width: 200px; }flex-flow:wrap; transition:width .7s ease-out; 
+.sutra > div:nth-child(1){ background:#009246; }
+.sutra > div:nth-child(2){ background:purple; }
+.sutra > div:nth-child(3){ background:#CE2B37; }*/
+	ta.onkeydown=function(evt){
+		if (evt.keyCode===13 && evt.altKey) {//console.log('alt+Enter');
+			rtrv_info();
+			xhr.data_sent(url, data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.UserExisted) form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+					else console.log('User Not Existed'); };
+					}
+			}
+	}
+}
+		//this.setRequestHeader('Content-Type', 'text/html; charset=utf-8');
+		//this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		//this.setRequestHeader('Content-Type', 'multipart/form-data');
+

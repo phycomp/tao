@@ -1,0 +1,189 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block CSS%}
+<!--<link href="{{MEDIA_URL}}css/quill.snow.css" rel="stylesheet">
+<link href="{{MEDIA_URL}}css/quill.bubble.css" rel=stylesheet>
+<script src='{{MEDIA_URL}}js/quill.js'></script>-->
+{%endblock CSS%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+article div:hover{color:cyan; }
+/*article div{flex:1; }
+article div img{max-width:100%; height:auto; }*/
+output{margin-right:2px; }
+</style>
+{%endblock STYLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()};
+let idAttr='bid', url="{%url 'blog-pagination'%}"
+window.onscroll=function(){infinitScroll(url, idAttr)};
+let blogAdd=ById('blogAdd'), bid, rspData, formdata, article
+
+function blogCtxEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[1]//.getElementsByTagName('div')[0]
+	let bid=obj.getAttribute('bid'), txtarea=ById('bE'), section=summary.parentNode
+	if(!document.contains(txtarea)) {txtarea=createElement('textarea'); txtarea.id='bE'} 
+	txtarea.rows=1; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function bE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({bid:bid, body:body})
+			xhr.data_sent("{%url 'blog-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.blogCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', bE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentBlog Not Deleted') }
+				}
+			}
+	})
+}
+
+function blogDelete(obj){
+	bid=obj.getAttribute('bid');
+	data=JSON.stringify({bid:bid});
+	xhr.data_sent("{%url 'blog-delete'%}", data);
+			xhr.onreadystatechange=function(evt)
+			{
+				if(this.readyState==4 && this.status==200)
+					{ rspData=JSON.parse(this.responseText);
+					if (rspData.blogDeleted) obj.parentNode.parentNode.remove();
+					else console.log('Blog Not Deleted')}
+			}
+}
+
+	blogAdd.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData;
+		formdata=new FormData(blogAdd);
+		xhr.data_sent("{%url 'blog-add'%}", formdata);
+		xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText);
+				if (rspData.blogAdded) { blogAdd.insertAdjacentHTML('afterend', rspData.ctx); blogAdd.reset(); }
+				else console.log('Blog Not Added') }
+		}
+		evt.preventDefault()}, false)
+
+function ONLOAD(){ }
+</script>
+{%endblock SCRIPT%}
+{%block SECTION%}
+<form id=blogAdd enctype='multipart/form-data' method=POST validate>
+<input type=text name=title placeholder=title required>
+<textarea name=body cols=1 rows=2></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'Blog Add'%}</button>
+</form>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for blog in blogs%}
+	{%with userID=user.id medium=blog.post.media.all title=blog.title.title body=blog.post.body aid=blog.post.author_id bid=blog.id%}
+	<article bid={{bid}}>
+	<output>
+	{%if aid == userID%}<div onclick='blogDelete(this, event)' bid={{bid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' aid%}"><img title={{aid}} alt={{aid}} class=small src={%url 'avatar-member' aid%}></a></div>
+	{#<div><a href={%url 'blog-edit' bid%}>{%trans 'edit'%}</a></div>#}
+	<div onclick='blogCtxEdit(this, event)' bid={{bid}}>ctxEdit</div>
+	{%else%}
+	<div><a href="{%url 'profile' aid%}"><img alt={{aid}} class=small src={%url 'avatar-member' aid%}></a></div>
+	{%endif%}
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{blog.timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<div><a href={%url 'blog-detail' bid%}>{{body}}</a></div>
+			{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	</article>
+	{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+</style>
+let newData=querySelector('.newData'), data, winHeight=window.innerHeight, paginationStatus=true;
+function infinitScroll(){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset, winnerHeight=window.innerHeight;
+	bid=newData.previousElementSibling.getAttribute('bid')
+	console.log(bid)
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus)
+		{data=JSON.stringify({'bid':bid})
+		xhr.data_sent("{%url 'blog-pagination'%}", data);
+		paginationStatus=!paginationStatus
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState===4&&this.status===200)
+				{ rspData=JSON.parse(this.response);
+				if (rspData.newData) {paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData)}
+				else newdataStatus=false }
+			};
+		}
+}
+
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+{%block MAIN%}
+<main>
+</main>
+{%endblock MAIN%}
+<aside>
+{%for tag in tags%}
+<span><a href={%url 'tag' tag.id%}>{{tag}}</a></span>
+{%endfor%}
+</aside>
+{%endcomment%}

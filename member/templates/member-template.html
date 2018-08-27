@@ -1,0 +1,50 @@
+{%extends 'block.html'%}
+{%load i18n%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+main{flex-flow:wrap; }
+main div{flex:1; flex-flow:row; }
+main div.post-body{flex:9; width:100%; }
+main div.post-body:hover{color:cyan; }
+main div.post-body div{flex:1; }
+main div.timestamp{flex:1; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<form enctype='multipart/form-data' method=POST validate>
+<textarea name=body cols=1 rows=2></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button id=postAdd></button>
+</form>
+
+{%for gpost in gposts reversed%}
+	<article>
+	{%if gpost.blog.title%}<div>{{gpost.blog.title}}</div>{%endif%}
+	<div class=post-body >{{gpost.body|truncatewords_html:15}}
+	{%for media in gpost.media.all%}
+	<div><img style='width:40px;height:40px' src={%url 'avatar-raw' media.id%}></div>
+	{%endfor%}
+	</div>
+	<div class=timestamp>{{gpost.created|timesince}}ago</div>
+	</article>
+{%endfor%}
+</main>
+{%endblock MAIN%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}; //id='snow-container'{%trans 'post add'%}action='{{post_add_url}}' 
+function getElement(ele){return document.querySelector(ele)}
+var form=getElement('form'); var xhr=new XMLHttpRequest();
+var rspData, formdata, ajax_url="{{ajax_url}}", redirect_url="{{redirect_url}}";
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		//this.setRequestHeader('Content-Type', 'text/html; charset=utf-8');
+		//this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		//this.setRequestHeader('Content-Type', 'multipart/form-data');
+		xhr.send(data);
+	};
+</script>
+{%endblock SCRIPT%}

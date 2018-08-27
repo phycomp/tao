@@ -1,0 +1,22 @@
+{%load i18n%}
+{%for ge in GEs%}
+{%with title=ge.gallery.title.title coordinate=ge.coordinate datetime=ge.datetime timestamp=ge.timestamp medium=ge.gallery.picture.all launcher=ge.gallery.galler ggID=ge.gallery.galler.id geID=ge.id%}
+	<article gid={{gid}}>
+	<output>
+	<div onclick='geDelete(this, event)' gid={{gid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' ggID%}"><img alt={{launcher}} class=small src={%url 'avatar-member' ggID%}></a></div>
+	<div><a href={%url 'ge-edit' geID%}>{%trans 'edit'%}</a></div>
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<hgroup><div>{{coordinate}}</div><div><time date={{date}}>{{date}}</time><time time={{time}}>{{time}}</time></div></hgroup>
+		{#<div><time>{{datetime}}</time></div>#}
+			{%if medium%}<picture>
+			{%for media in medium%}
+				<img class=small title='{{media.description}}' alt='{{media.description}}' src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	</article>
+{%endwith%}
+{%endfor%}

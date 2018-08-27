@@ -1,0 +1,66 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'SINGUP'%}{%endblock TITLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}
+function getElement(ele){return document.querySelector(ele)}
+var rspData, form=getElement('form'), xhr=new XMLHttpRequest(), ajax_url="{%url 'contact'%}";
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		//this.setRequestHeader('Content-Type', 'text/html; charset=utf-8');
+		//this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		//this.setRequestHeader('Content-Type', 'multipart/form-data');
+		xhr.send(data);
+	};
+function ONLOAD(){
+	form.addEventListener('submit', function(evt){
+		formdata=new FormData(this);
+		xhr.data_sent(ajax_url, formdata);
+		xhr.onreadystatechange=function(evt){
+			if(this.status==200 && this.readyState==4) {rspData=JSON.parse(this.responseText);
+				if(rspData.ContactSent) form.innerHTML='<div style="color:red">Contact Sent, Thanks!</div>';//console.log('user created');
+				else console.log('user not created');}//window.location=redirect_url;
+			};
+		evt.preventDefault();
+		});
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{flex:1; flex-flow:column; align-items:center; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<form enctype='multipart/form-data' method=post autocomplete=on validate>
+	<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+	<input type=email name=email pattern='[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$' placeholder={%trans 'email'%} title='Email validation' autocomplete='email' required><br>
+	<input type=text name=subject placeholder={%trans 'subject'%} autocomplete='subject' required><br>
+	<textarea rows=8 name=body ></textarea>
+	<button>{%trans 'comment'%}</button>
+</form>
+</main>
+{%endblock MAIN%}
+{%comment%}
+var c=document.querySelector('input[name=cellular]'), b=document.querySelector('input[name=birthday]'), f=document.querySelector('input[name=first_name]'), l=document.querySelector('input[name=last_name]'), e=document.querySelector('input[name=email]');
+var form=document.querySelector('form'); var xhr=new XMLHttpRequest(); var rspData, url="{%url 'edit-profile'%}", redirect_url="{%url 'me'%}";
+xhr.data_sent=function(url, data){
+	this.open('POST', url, true);
+	this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+	this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	this.send(data);
+	};
+function rtrv_info(evt){
+	cellular=c.value; birthday=b.value; email=e.value; first_name=f.value; last_name=l.value; cellular=c.value; birthday=b.value;
+	data=JSON.stringify({cellular:cellular, birthday:birthday, email:email, first_name:first_name, last_name:last_name});
+	};
+	<input type=text name=cellular pattern='\d{10,15}' placeholder={%trans 'cellular'%} title='10-15 digits' value={{user.cellular}} required><br>
+	<input type=date name=birthday pattern='[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])' placeholder="{%trans 'birthday like 2018-01-01'%}" title='YYYY-MM-DD' required value='{{user.birthday|date:"Y-m-d"}}'><br>
+	<input type=text name=last_name placeholder={%trans 'last_name'%} required autocomplete='family-name' value={{user.last_name}}><br>
+/*form.onload=function(){ ONLOAD(); }*/
+{%block CSS%}<link rel=stylesheet href="{{MEDIA_URL}}css/login.css">{%endblock CSS%}
+	<input type=text name=identifier placeholder={%trans 'identifier'%} required value={{user.identifier}}><br>
+{%endcomment%}

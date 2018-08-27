@@ -1,0 +1,23 @@
+{%extends 'base.html'%}
+{%load friendshiptags avatar_tags%}
+{%block TITLE%}-{{tag}}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+article div{width:-webkit-fill-available;}
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%for blog in blogs%}
+<article>
+<summary>
+<div><a href={%url 'profile' blog.author.id%}><img src={%url 'avatar-member' blog.author.id%}></a></div>
+</summary>
+<summary style='flex:9'>
+<div>{{blog.body}}</div>
+<div><time>{{blog.created|timesince}} ago</time></div>
+</summary>
+</article>
+{%endfor%}
+</main>
+{%endblock MAIN%}

@@ -1,0 +1,61 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'LOGIN'%}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+@media screen and (max-width:600px) {
+	input[type=submit]{width:100%; cursor:pointer}
+}
+/*<link rel=stylesheet href="{{MEDIA_URL}}css/login.css">
+input[type=password], input[type=text]{margin:4px; width:100%; padding:10px; }
+input[type=submit], input[type=password], input[type=text]
+*/
+</style>
+{%endblock STYLE%}
+{%block SCRIPT%}
+<script>
+var button=document.querySelector('button'), form=document.querySelector('form');
+var username, password, data, rspData, fired=false; var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		this.send(data);
+	};
+function rtrv_info(evt){
+username=document.querySelector('input[name=username]').value;
+password=document.querySelector('input[name=password]').value;
+data=JSON.stringify({username:username, password:password });
+//return data;
+};
+function checkUsername(evt){
+//data=rtrv_info(evt);
+rtrv_info(evt);
+console.log(data);
+url="{%url 'check-username'%}";
+xhr.data_sent(url, data);
+xhr.onload=function(evt){
+	if(this.readyState==4 && this.status==200) {rspData=JSON.parse(this.response);
+		console.log(rspData);
+		fired=rspData.UserExisted?true:false; console.log(fired);
+		};
+	};
+};
+button.addEventListener('click', function(evt){
+	checkUsername(evt);
+	console.log(fired);
+	if (!fired) console.log('LOGIN'); //form.innerHTML='LOGIN';
+	else form.submit();
+	});
+</script>
+{%endblock SCRIPT%}
+{%block MAIN%}
+<main>
+<form action={%url 'login'%} method=post autocomplete=on validate>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+	<input type=text name=username onkeyup='checkUsername()' placeholder={%trans 'username'%}> <br>
+	<input type=password name=password onkeyup='checkUsername()' pattern='.{8,}' placeholder={%trans 'password'%}> <br>
+	<button onclick='return false'>{%trans 'login'%}</button>
+</form>
+</main>
+{%endblock MAIN%}

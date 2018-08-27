@@ -1,0 +1,53 @@
+{%extends 'base.html'%}
+
+{%block CSS%}
+<link rel="stylesheet" href="{{MEDIA_URL}}css/quill.snow.css" />
+<style>
+  #snow-container { max-width: 100%; height: 350px; }
+  .ql-snow{background-color:silver; }
+  .ql-editor{color:blue; }
+</style>
+{%endblock CSS%}
+{%block SCRIPT%}
+<script src="{{MEDIA_URL}}js/quill.min.js"></script>
+<script>
+  var quill = new Quill('#snow-container', {
+    placeholder: 'Compose an epic...',
+    theme:'snow'
+  });
+</script>
+{%endblock SCRIPT%}
+{%block MAIN%}
+  <div id="snow-container"></div>
+{%endblock MAIN%}
+
+{%comment%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Snow Theme - Quill Rich Text Editor</title>
+  <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="language" content="english">
+<meta name="viewport" content="width=device-width">
+
+<meta name="description" content="Quill is a free, open source WYSIWYG editor built for the modern web. Completely customize it for any need with its modular architecture and expressive API.">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@quilljs">
+
+<meta name="twitter:title" content="Snow Theme - Quill">
+
+ 
+  
+  
+
+  
+  
+
+</head>
+<body>
+
+</body>
+</html>
+{%endcomment%}

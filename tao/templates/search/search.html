@@ -1,0 +1,23 @@
+{%extends 'base.html'%}
+{%block MAIN%}
+<form>
+<table>
+{{form.as_table}}
+</table>
+</form>
+{{page.object_list}}
+{% for result in page.object_list %}
+    <div class="search_result">
+    {%if result.body%}
+    <a href={%url 'blog-view' result.object.id%}>
+    {{result.title}}
+    {{result.body}}</a>
+    {%else%}
+	{{result.user_medium.last.media}}
+	{{result.cellular}}
+	{{result.identifier}}
+	{{result.email|safe}}
+	{%endif%}
+    </div>
+{% endfor %}
+{%endblock MAIN%}

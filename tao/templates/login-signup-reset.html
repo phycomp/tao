@@ -1,0 +1,100 @@
+{%extends 'base.html'%}
+{%load staticfiles%}
+{%block CSS%}<link rel="stylesheet" href="{{MEDIA_URL}}css/lsr.css">{%endblock CSS%}
+{%block XHR%}
+{%include 'xhr.html'%}
+{%endblock XHR%}
+{%block SCRIPT%}
+<script>
+var modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer')
+var IMG, mcID='MODAL', IMGs={}, Images=[]
+var images=document.getElementsByTagName('img'), imgLength=images.length;
+for (let idx=0;idx<imgLength;idx++)
+	{ imgsrc=images[idx].getAttribute('src')
+	Images.push(imgsrc)
+	IMGs[idx]=imgsrc}
+function showModal(obj, event){
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.2
+	offsetHeight=modal.offsetHeight*.2
+	console.log(modal.width)
+	IMG=ById(mcID)
+	if (!document.contains(IMG)) {IMG=createElement('img'); IMG.id=mcID}
+	imgsrc=obj.getAttribute('src')
+	IMG.src=imgsrc
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.insertAdjacentElement('beforeend', IMG)
+	modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.3); }
+.modalContainer{display:flex; justify-content:center; align-items:center; }
+.slideRight{position:fixed; font-size: 3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; left:0; top:100px; }
+img{width:20%; height:20%; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<img src="/assets/images/1.jpg" onclick='showModal(this)'>
+<img src="/assets/images/2.jpg" onclick='showModal(this)'>
+<img src="/assets/images/3.jpg" onclick='showModal(this)'>
+<img src="/assets/images/joy.jpg" onclick='showModal(this)'>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+
+</main>
+{%endblock MAIN%}
+{%comment%}
+var IMG, images=['1.jpg', '2.jpg', '3.jpg', 'joy.jpg']
+for (img in images)
+	{ IMG=createElement('img')
+	img='/assets/images/'+images[img]
+	IMG.src=img
+	IMG.style='width:20%;height:20%'
+	main.appendChild(IMG)
+	}
+<div class="flex-wrap">
+    <fieldset>
+        <form action novalidate>
+            <input type=radio name=rg id="sign-in" checked>
+            <input type=radio name=rg id="sign-up">
+            <input type=radio name=rg id="reset" >        
+
+            <label for=sign-in>Sign in</label>
+            <label for=sign-up>Sign up</label>
+            <label for=reset>Reset</label>  
+
+            <input class="sign-up sign-in reset" type="email" placeholder="Email">
+            <input class="sign-up sign-in" type="password" placeholder ="Password">
+            <input class="sign-up" type="password" placeholder ="Repeat Password">
+            <input class="sign-up" type="text" placeholder ="Cellular" >
+            <input class="sign-up" type="password" placeholder ="Repeat Password">
+            <input class="sign-up" type="password" placeholder ="Repeat Password">
+            <button>Submit</button>        
+        </form>
+    </fieldset>
+</div>
+{%endcomment%}

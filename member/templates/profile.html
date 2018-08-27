@@ -1,0 +1,185 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block TITLE%}-{%blocktrans%}Hello, {%endblocktrans%}{{other.nickname}}{%endblock TITLE%}
+{%block SCRIPT%}
+<script>
+let article, formdata, rspData, wallAdd=ById('wallAdd'), ta=querySelector('textarea'), attached=querySelector('input[type=file]'), txtarea=ById('pCE'), summary, DIV, section, pid
+let idAttr='pid', url="{%url 'profile-pagination'%}"
+window.onload=function(){ONLOAD()};
+window.onscroll=function(){infinitScroll(url, idAttr)}
+
+function postCtxEdit(obj){
+	summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[0]//.getElementsByTagName('div')[0]
+	pid=obj.getAttribute('pid'), section=summary.parentNode
+	if(!document.contains(txtarea)) txtarea=createElement('textarea')
+	txtarea.rows=1; txtarea.id='pCE'; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function pE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({pid:pid, body:body})
+			xhr.data_sent("{%url 'post-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4 && this.status==200)
+					{ rspData=JSON.parse(this.responseText);
+					if (rspData.postCtxEdited){DIV.innerHTML=body; txtarea.value=''; txtarea.removeEventListener('keydown', pE); section.parentNode.removeChild(txtarea)}
+					else console.log('CommentPost Not Edited') }
+				}
+			}
+	})
+}
+
+function postDelete(obj, event){
+	var pid=obj.getAttribute('pid');
+	data=JSON.stringify({pid:pid});
+	xhr.data_sent("{%url 'post-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+		{ rspData=JSON.parse(this.responseText);
+			if (rspData.PostDeleted) obj.parentNode.parentNode.remove()
+			else console.log('Blog Not Deleted') }
+	}
+}
+
+function ONLOAD(){
+	wallAdd.addEventListener('submit', function(evt){
+		txtarea=this.getElementsByTagName('textarea')[0];
+		article=querySelector('article')
+		if(!document.contains(article))article=newData
+		formdata=new FormData(wallAdd);
+		/*if (attached.files.length)*/
+			{ xhr.data_sent("{%url 'wall-add'%}", formdata);
+				xhr.onreadystatechange=function(evt)
+					{ if(this.status==200 && this.readyState==4)
+						{rspData=JSON.parse(this.response);
+						if(rspData.wallPosted) { article.insertAdjacentHTML('beforebegin', rspData.ctx); wallAdd.reset()}
+						else console.log('wall not posted')}
+					}
+			}
+		evt.preventDefault()}, false);
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+/*section{flex:1; margin-:10px; }*/
+figcaption{flex:1; margin:4px; }
+output{margin-right:4px; }
+summary{flex:9; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+<section>
+<figcaption><img src={%url 'avatar-member' other.id%}></figcaption>
+<figcaption>
+<div><label>{{other.first_name}}</label></div>
+<div><label>{{other.last_name}}</label></div>
+<div><label>{{other.nickname}}</label></div>
+<div><label>{{other.email}}</label></div>
+<div><label>{{other.cellular}}</label></div>
+<div><label>{{other.birthday}}</label></div>
+</figcaption>
+<figcaption>
+<form id=wallAdd enctype=multipart/form-data method=POST validate>
+<input type=hidden name=oid value={{other.id}}>
+<textarea name=body cols=1 rows=2 required></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'Wall Add'%}</button>
+</form>
+</figcaption>
+</section>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for wall_post in posts%}
+	{%with medium=wall_post.post.media.all pid=wall_post.post.id aid=wall_post.post.author_id body=wall_post.post.body timestamp=wall_post.post.timestamp%}
+	<article pid={{pid}}>
+	<output style='margin-right:2px'>
+	{%if aid == userID%}<div onclick='postDelete(this, event)' pid={{pid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' aid%}"><img title={{aid}} alt={{aid}} class=small src={%url 'avatar-member' aid%}></a></div>
+	<div onclick='postCtxEdit(this, event)' pid={{pid}}>ctxEdit</div>
+	{%else%}<div><a href="{%url 'profile' aid%}"><img title={{aid}} alt={{aid}} class=small src={%url 'avatar-member' aid%}></a></div> {%endif%}
+	</output>
+	<summary>
+	<div><a href={%url 'post-detail' pid%}>{{body|truncatewords_html:15}}</a></div>
+		{%if medium%}<picture>
+		{%for media in medium%}
+			{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+			{%endif%}
+		{%endfor%}
+		</picture>{%endif%}
+	<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	</summary>
+	</article>
+	{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+</style>
+let newData=querySelector('.newData'), newdataOffsetTop, scrollPos, winnerHeight, paginationStatus=true
+function infinitScroll(){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset, winnerHeight=window.innerHeight;
+	pid=newData.previousElementSibling.getAttribute('pid')
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus)
+		{data=JSON.stringify({'pid':pid})
+			xhr.data_sent("{%url 'profile-pagination'%}", data);
+			paginationStatus=!paginationStatus
+			xhr.onreadystatechange=function(evt)
+			{ if(this.readyState===4 && this.status===200)
+				{ rspData=JSON.parse(this.response);
+				if (rspData.newData) {paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData);}
+				else console.log('newData not updated')}
+			}
+		}
+}
+{%endcomment%}

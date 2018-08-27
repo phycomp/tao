@@ -1,0 +1,52 @@
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<aside></aside>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+aside{position:fixed; bottom:100px; font-size:3vw; margin:auto; width:50%; }
+</style>
+<script>
+let idx=0, MODAL=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal'), aside=querySelector('aside'), Images=[], IMGs={}, DESCRP, imgLength=0
+
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+
+function showModal(obj, event){
+	Images=[]; IMGs={}, DESCRP={}
+	let images=obj.parentNode.parentNode.getElementsByTagName('img')
+	for (idx=0;idx<images.length;idx++)
+		{ imgsrc=images[idx].getAttribute('src'); descrp=images[idx].getAttribute('title')
+		if(imgsrc){Images.push(imgsrc); IMGs[idx]=imgsrc; DESCRP[idx]=descrp; imgLength++}
+		}
+	modal.style.display='flex'
+	offsetWidth=Math.round(modal.offsetWidth/3); offsetHeight=Math.round(modal.offsetHeight/3)
+	MODAL.src=obj.getAttribute('src')
+	MODAL.style.width=[offsetWidth, 'px'].join('')
+	MODAL.style.height=[offsetHeight, 'px'].join('')
+	aside.innerHTML=obj.getAttribute('title')
+}
+function slideRight(obj){
+	imgsrc=MODAL.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	MODAL.src=IMGs[idx+1]; descr=DESCRP[idx+1]
+	aside.innerHTML=descr; MODAL.alt=descr
+}
+function slideLeft(obj){
+	imgsrc=MODAL.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	MODAL.src=IMGs[idx-1]; descr=DESCRP[idx-1]
+	aside.innerHTML=descr; MODAL.alt=descr
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+</script>

@@ -1,0 +1,28 @@
+mkmigration=>member, medium, post, blog, forum, book, sutra, tug, gallery, ge2ge
+
+home, me/post, profile, blog, forum, tug, gallery, g2g
+-template
+-pagination
+-detail
+comment_self, comment_reply, comment_template
+
+- post add in index/home
+- channel feature
+- geodjango, leaflet map, temple/veg restaurant POIs@taiwan
+- navsidebar with media query
+- real-time notification
+- friends app
+- misc chinese book into the dbase
+- dynamic content while scroll-down
+- model multi-language
+- text to speech via web api
+- haystack search
+- language translation
+- yijing/traditional chinese
+
+blog/urls.py:    path(r'edit/<int:bid>/', BlogEdit.as_view(), name='blog-edit'),
+forum/urls.py:    path(r'edit/<int:fid>/', ForumEdit.as_view(), name='forum-edit'),
+gallery/urls.py:    path(r'edit/<int:gid>/', GalleryEdit.as_view(), name='gallery-edit'),
+ge2ge/urls.py:    path(r'edit/<int:gid>/', GoodsExchangeEdit.as_view(), name='ge-edit'),
+post/urls.py:    path(r'edit/<int:pid>/', PostEdit.as_view(), name='post-edit'),
+tug/urls.py:    path(r'edit/<int:tid>/', TugEdit.as_view(), name='tug-edit'),

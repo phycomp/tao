@@ -1,0 +1,44 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'SINGUP'%}{%endblock TITLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()};
+var SIGNUP=ById('SIGNUP'); 
+function ONLOAD(){ 
+	SIGNUP.addEventListener('submit', function(evt){
+		formdata=new FormData(SIGNUP);
+		xhr.data_sent("{%url 'signup'%}", formdata);
+		xhr.onload=function(evt){
+			if(this.status==200 && this.readyState==4) responseData=JSON.parse(this.response);
+			if(responseData.UserCreated) window.location="{%url 'me'%}";//console.log('user created');
+			else console.log('user not created');
+			};
+		evt.preventDefault();
+		});
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{justify-content:center; }
+#SIGNUP{ margin:auto; width:50%; padding:20px; border-radius:10px}
+input{margin-top:4px; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+<form id=SIGNUP action={%url 'signup'%} enctype=multipart/form-data method=post autocomplete=on validate>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+	<input type=text name=identifier placeholder={%trans 'identifier'%} required>
+	<input type=text name=first_name placeholder={%trans 'first_name'%} required autocomplete='given-name'>
+	<input type=text name=last_name placeholder={%trans 'last_name'%} required autocomplete='family-name'>
+	<input type=password name=password pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' placeholder={%trans 'password'%} title='password validation' required autocomplete='given-password'>
+	<input type=email name=email pattern='[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$' placeholder={%trans 'email'%} title='Email validation' required autocomplete='email'>
+	<input type=text name=cellular pattern='\d{10,15}' placeholder={%trans 'cellular'%} title='cellular 09xxxxxxxx' required>
+	<input type=date name=birthday pattern='[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])' placeholder={%trans '2018-01-01'%} title='birthday YYYY-MM-DD' required value='2018-01-01'>
+	<button>{%trans 'singup'%}</button>
+<h3>註冊即表示同意本網站的版權聲明，關於本網站的<mark>詳細使用規則</mark>，請參考<a href={%url 'about'%}>{%trans 'about'%}</a></h3>
+</form>
+{%endblock SECTION%}
+{%comment%}
+{%endcomment%}

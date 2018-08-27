@@ -1,0 +1,71 @@
+<!--<link rel=stylesheet type="text/css" href="{{MEDIA_URL}}css/nav.css">-->
+<!--<link rel=stylesheet href={{MEDIA_URL}}css/search.css>-->
+<style>
+nav{display:-webkit-flex; display:flex; text-align:center; justify-content:center; background-color:maroon; width:80%; }
+nav div{flex:1; display:-webkit-flex; flex-flow:column; }
+nav div div{display:none}
+nav div:hover{flex-flow:column; align-items:center; }
+nav div:hover div{display:block; position:relative; }
+nav >div a{text-decoration:none; color:yellow; }
+nav >div a:hover{text-decoration:none; color:dodgerblue; font-weight:bold; }
+nav input[type=search]{width:40px; border-radius:5px; outline:none;  transition:all .5s ease-in-out; color:seagreen; }
+nav input[type=search]:hover{width:20%; }
+::-moz-placeholder{color:orangered; }
+::-webkit-input-placeholder{color:orangered; }
+@media all and (max-width:600px){
+	nav{background-color:rgba(0,0,0,.3); }
+	nav{flex-flow:column; }
+	nav div{padding-bottom:4px; }
+	nav div div:hover{background-color:lightblue; }
+	nav input[type=search]:hover{width:100%; }
+}
+</style>
+<div style='width:98%; position:fixed; top:0; '>
+<nav>
+	{%if user.is_authenticated%}
+	<div><a href={%url 'home'%}>home</a></div>
+	<div><a href={%url 'me'%}>ME</a>
+		<div><a href={%url 'friends'%}>{{trans 'FRIENDS'}}</a></div>
+		<div><a href={%url 'edit-profile'%}>{{trans 'edit-profile'}}</a></div>
+		<div><a href={%url 'password-reset'%}>{{trans 'Password Reset'}}</a></div>
+		<div><a href={%url 'logout'}}>{{trans 'LOGOUT'}}</a></div>
+	</div>
+	<div><a href={%url 'members'%}>{{trans 'members'%}</a>
+		{#<div><a href={%url 'friend_add' user%}>{{trans 'friend add'%}</a></div>#}
+	</div>
+	<div><a href={%url 'blogs'%}>{{trans 'blogs'%}</a>
+		<div><a href={%url 'sutras'%}>{{trans 'sutras'%}</a></div>
+	</div>
+	{%else%}
+	<div><a href={%url 'index'%}>index</a></div>
+	<div><a href={%url 'login'%}>{{trans 'LOGIN'%}</a>
+		<div><a href={%url 'signup'%}>{{trans 'SingUp'%}</a></div>
+		<div><a href={%url 'password-forgot'%}>{{trans 'password forgot'%}</a></div>
+	</div>
+	{%endif%}
+	<div><a href={%url 'contact'%}>{{trans 'contact'%}</a>
+		<div><a href={%url 'about'%}>{{trans 'about'%}</a></div>
+	</div>
+	<input type=search placeholder="Search..." onsearch='showSearch(this)' results=5 autosave=unique name=search>
+</nav>
+</div>
+<script>
+function showSearch(obj){
+var data=JSON.stringify({q:obj.value}), rspData, search_url="{%url 'blog-search'%}";
+console.log(data);
+xhr.data_sent(search_url, data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.UserExisted) console.log('User Not Existed');//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";
+			else console.log('User Not Existed') }
+		}
+}
+</script>
+	{%comment%}
+		<div><a href={%url 'sutra-add'%}>{{trans 'sutra add'%}</a></div>
+		<div><a href={%url 'blog-add'%}>{{trans 'blog add'%}</a></div>
+	</div>
+	<div><a href={%url 'avatar_add'%}>{{trans 'avatar add'%}</a>
+		<div><a href={%url 'avatar_change'%}>{{trans 'avatar change'%}</a></div>
+	</div>
+	{%endcomment%}

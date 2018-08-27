@@ -1,0 +1,38 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block SCRIPT%}
+<script src="https://cdn.ckeditor.com/ckeditor5/10.0.1/classic/ckeditor.js"></script>
+<script>
+ClassicEditor.create(document.querySelector('#editor') ).catch( error => {
+            console.error( error );
+        } );
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{justify-content:center; }
+textarea{width:100%; border-radius:5px; margin-top:2px; }
+/*
+.ck-editor { color:green; }
+.wrapper{display:flex; margin:20px auto}
+input[type=text]{width:100%; margin-bottom:20px}
+textarea{width:100%; }
+button{display:block; margin-top:20px; margin:0 auto}
+*/
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%if perms.forum.can_edit%}
+<form action={%url "forum-edit" forum.id%} method=POST>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+<input type=text name=title placeholder='forum title' value="{{forum.title}}" required>
+<textarea id=editor name=body placeholder=BLOGBODY cols=30 rows=8 required>{{forum.post.body}}</textarea>
+<button>{%trans 'Forum Edit'%}</button>
+</form>
+{%else%}
+<h1 style='color:red'>No permission granted!</h1>
+{%endif%}
+</main>
+{%endblock MAIN%}
+

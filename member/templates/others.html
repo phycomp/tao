@@ -1,0 +1,20 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block STYLE%}
+<style>
+main{flew-flow:wrap; }
+figure{margin:10px; flex:1; }
+figure div{text-align:center; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%for member in members%}
+<section>
+	<div><a href={%url 'profile' member.id%}><img src={%url 'avatar-member' member.id%}></a></div>
+	<div><a href={%url 'friend_add' member%}>{%trans 'add as friend'%}</a></div>
+	<div><a href={%url 'follower_add' member%}>{%trans 'follow user'%}</a></div>
+</section>
+{%endfor%}
+</main>
+{%endblock MAIN%}

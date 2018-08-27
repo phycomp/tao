@@ -1,0 +1,118 @@
+{%load i18n staticfiles%}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>{%blocktrans%}TAO{%endblocktrans%}{%block TITLE%}{%endblock TITLE%}</title>
+	<link rel="shortcut icon" href="{%static 'images/favicon.ico'%}">
+	<!--<link rel=stylesheet href="{{MEDIA_URL}}css/style.css">-->
+	<style>
+/**{font-size:2vw; background:rgba(0, 214, 170, .85); }*/
+:root{background-color:darkgreen; color:white; font-size:2vw; }
+*, *:before, *:after{box-sizing:border-box; }
+html{width:80%; height:100%; /*padding:4;*/ margin:0 auto; font-family:'Open Sans'; }
+body{display:flex; display:-webkit-flex; -webkit-flex-flow:column; align-items:center; }/*flex-flow:column; justify-content:center; align-items:center; */
+main, section, article, aside, hgroup, summary, output, figcaption, details, datalists, picture{display:flex; display:-webkit-flex; }/*flex-flow:inherit; */
+main, section, article, details, datalists, hgroup{flex-flow:row; width:100%; }
+figcaption, output, summary{flex-flow:column; }
+figcaption, output{align-items:center; }
+picture{flex-flow:wrap; }
+picture img{margin-right:2px; }
+header, footer{display:flex; display:-webkit-flex; justify-content:center; }
+header{margin-bottom:10px; width:100%; /overflow-x:auto; *left:calc(50%-100px); &::-webkit-scrollbar{display:none}; */ white-space:nowrap; -webkit-overflow-scrolling:touch; position:relative; }
+header::-webkit-scrollbar{display:none; }
+header h2{z-index:999; position:absolute; }
+header:hover, footer:hover{color:dodgerblue; }
+#headerWrapper{display:flex; display:-webkit-flex; flex-flow:row; justify-content:center; overflow-x:scroll; overflow:hidden; /*-webkit-overflow-scrolling:touch;*/ }
+#headerWrapper img{display:flex; display:-webkit-flex; width:50px; height:50px; }
+time{float:right; }
+h1:hover{color:yellow; }
+a{color:yellow; text-decoration:none; transition:color 150ms;}
+a:hover{color:#00ffff; font-weight:bold; }
+img{max-width:100%; height:auto; border-radius:5px; }
+img:hover{transform:scale(1.3); box-shadow:10px 10px 10px rgba(0,0,0,.3); /*border-radius:5px;*/ }
+.small{width:60px; height:60px; }
+input{font-size:2vw; }
+input[type=number], input[type=text], input[type=range], input[type=date], input[type=email], input[type=password]{ display:inherit; flex:1; border-radius:5px; width:100%; }
+select{width:100%; border-radius:5px; font-size:2vw; margin:2px 0 2px 0; }
+button{width:100%; border-radius:5px; font-size:2vw; margin:2px 0 2px 0; }
+button:hover{color:blue; font-weight:bold; }
+textarea{width:100%; border-radius:5px; font-size:2vw; }
+::-moz-placeholder{color:orangered; }
+::-webkit-input-placeholder{color:orangered; }
+.flexForm{display:flex; width:100%; }
+@media all and (max-width:600px){
+	html{max-width:100%; height:100%; margin:0 auto; }
+	header{display:none; }
+	main, section, article{flex-flow:column; }
+	/*form{position:fixed; width:100%; }
+	#menuToggle{right:10px; top:10px; display:flex; position:fixed; font-size:5vw; }
+	nav{flex-flow:column; width:20%; height:100%; display:none; left:0px; top:0; position:fixed; align-items:center;}
+	nav div{display:-webkit-flex; width:100%; justify-content:center; }
+	nav div div{display:none; }
+	nav div:checked{flex-flow:column; align-items:center; position:absolute; }
+	nav div:checked div{display:-webkit-flex; background-color:purple; position:relative; }
+	*/
+	#LOGOUT{display:block; width:100%; margin:auto; }
+}
+/*footer:before{clear:both; }
+html, body{width:100%; height:100%; padding:0; margin:0; font-family:'Open Sans'; background-color:darkgreen; color:white; font-size:2vw; }
+html{display:flex; }*/
+	</style>
+	{%block CSS%}{%endblock CSS%}
+	{%block STYLE%}{%endblock STYLE%}
+	{%block JS%}{%endblock JS%}
+</head>
+<body>
+{%include 'nav.html'%}
+<header>
+<div id=headerWrapper>
+<img src={{MEDIA_URL}}images/Tao.png>
+<img src={{MEDIA_URL}}images/迦葉尊者.jpg>
+<img src={{MEDIA_URL}}images/師尊.jpg>
+<img src={{MEDIA_URL}}images/伏羲.jpeg>
+<img src={{MEDIA_URL}}images/師母.png>
+<img src={{MEDIA_URL}}images/金公祖師.png>
+<img src={{MEDIA_URL}}images/d534-fxpwyhv7676736.jpg>
+<img src={{MEDIA_URL}}images/舜.png>
+<img src={{MEDIA_URL}}images/禹.png>
+<img src={{MEDIA_URL}}images/emperorHao.png>
+<img src={{MEDIA_URL}}images/emperorHuang.png>
+<img src={{MEDIA_URL}}images/堯.png>
+<img src={{MEDIA_URL}}images/神農.png>
+<h2>{%trans 'TAO prevail the world'%}</h2>
+</div>
+</header>
+{%block EXTRA%}{%endblock EXTRA%}
+{%block MAIN%}{%endblock MAIN%}
+{%block SECTION%}{%endblock SECTION%}
+{%block ARTICLE%}{%endblock ARTICLE%}
+{%block ASIDE%}{%endblock ASIDE%}
+{%block SCRIPT%}{%endblock SCRIPT%}
+<footer><h2>Powered by Django.</h2></footer>
+<aside class=themeChange>
+<input onclick='themeChange(this)' name=siteTheme themeType=gp type=radio checked>
+<input onclick='themeChange(this)' name=siteTheme themeType=yb type=radio>
+<input onclick='themeChange(this)' name=siteTheme themeType=mg type=radio>
+</aside>
+<style>
+.themeChange{width:auto; position:fixed; top:50%; right:10px; flex-flow:column; }
+.gp{color:lightgray; background:purple; }
+.yb{color:yellow; background:darkblue; }
+.mg{color:wheat; background:darkmagenta; a{color:ghostwhite; }}
+</style>
+<script>
+let BODY=document.querySelector('body'), classType
+function themeChange(obj)
+	{ classType=BODY.classList[0]
+	if (classType) BODY.classList.remove(classType)
+	if(obj.checked) BODY.classList.toggle(obj.getAttribute('themeType'))
+	}
+</script>
+</body>
+</html>
+{%comment%}
+	{%block XHR%}{%endblock XHR%}
+{%endcomment%}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang=en>
+    <head>
+        <meta charset=utf-8>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <meta name=viewport content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+        <meta name=description>
+        <meta name=author>
+        <title>KAIBEAUTY</title>
+    </head>
+<body>
+<div class=smoothslides id=zoomslide>
+	<img src='{{MEDIA_URL}}images/header_01.jpg'>
+	<img src='{{MEDIA_URL}}images/header_02.jpg'>
+	<img src='{{MEDIA_URL}}images/header_03.jpg'>
+	<img src='{{MEDIA_URL}}images/header_04.jpg'>
+</div>
+<div class=modal>
+<!--<span class=closeModal onclick='closeModal()'>&times;</span>-->
+<span class=slideLeft onclick='slideLeft()'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight()'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; /* background-color:rgba(0,0,0,.8);*/}
+img{-webkit-transition:all 1000ms ease-in-out; transition:all 1000ms ease-in-out; }
+.modalContainer{display:flex; -webkit-transition:all 300ms ease-in-out; transition:all 300ms ease-in-out; }
+.slideRight{position:fixed; font-size:3vw; right:50px; color:yellow; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; color:yellow; }
+/*.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }*/
+</style>
+<script>
+var IMG=document.getElementById('MODAL'), modal=document.querySelector('.modal'), modalContainer=document.querySelector('.modalContainer')//, modalClose=document.querySelector('.closeModal')
+var IMG, Images=[], images=document.getElementsByTagName('img'), imgLength=images.length;
+/*
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+*/
+var smoothslides=document.querySelector('.smoothslides')
+smoothslides.style.display='none'
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		console.log(img)
+		if(img) Images.push(img)
+		//IMGs[idx]=img
+		}
+let midImg=parseInt(imgLength/2)
+IMG.src=images[midImg].getAttribute('src')
+IMG.style.width='100%'//modal.offsetWidth
+IMG.style.height='100%'//modal.offsetHeight
+
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		//IMGs[idx]=img
+		}
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+imgLength=Images.length;
+function slideRight(){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	console.log(idx)
+	if (idx==imgLength-1) return;
+	setTimeout(function(){
+		IMG.src=Images[idx+1]
+		IMG.style.width='100%'//modal.offsetWidth
+		IMG.style.height='100%'//modal.offsetHeight
+		IMG.style.transition='all ease-in-out'
+		IMG.src = images[imageCount];
+	}, 500)
+}
+function slideLeft(){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	console.log(idx)
+	if (!idx) return;
+	setTimeout(function(){
+		IMG.src=Images[idx-1]
+		IMG.style.width='100%'//modal.offsetWidth
+		IMG.style.height='100%'//modal.offsetHeight
+		IMG.style.transition='all ease-in-out'
+	}, 500)
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+
+</script>
+</body>
+</html>

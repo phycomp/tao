@@ -1,0 +1,14 @@
+{%extends 'base.html'%}
+{%block ARTICLE%}
+<form enctype='multipart/form-data' method=post>
+<input>
+<input>
+</form>
+<script>
+//'https://openexchangerates.org/api/latest.json?app_id=[YOUR APP ID]',
+let fxSetup = { rates : data.rates, base : data.base }
+function(data)
+	{ if(typeof fx!== "undefined"&&fx.rates){ fx.rates = data.rates; fx.base = data.base; }
+	}
+</script>
+{%endblock ARTICLE%}

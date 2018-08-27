@@ -1,0 +1,49 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block STYLE%}
+<style>
+main{flex-flow:wrap; align-items:flex-start; }
+article{flex-flow:column; width:100px; height:auto; overflow:hidden;}
+article div{flex:1; margin:2px; }
+/*
+-webkit-display:flex; flex-flex:column; margin:10px; }
+article{flex:1; }
+section{ }
+article:hover{color:maroon; }
+article div a{text-decoration:none; color:yellow; }
+aside{flex:1; }
+aside a{text-decoration:none; color:yellow; }
+aside a:hover{text-decoration:none; color:lightyellow; }
+@media all and (max-width:324px){
+	main, section, article{flex-flow:column;}
+	//section{border:1px solid blue; margin:auto; width:90%; flex-grow:wrap; margin-top:10px; }
+}
+section div{padding:6px; flex-direction:column; }
+width:-webkit-fill-available;
+*/
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%for book in books%}
+<article>
+<div><a href={%url 'sutra-book' book.id%}>{{book}}</a></div>
+</article>
+{%endfor%}
+
+</main>
+{%endblock MAIN%}
+{%block ASIDE%}
+<aside>
+{%for tag in tags%}
+<span><a href={%url 'tag' tag.id%}>{{tag}}</a></span>
+{%endfor%}
+</aside>
+{%endblock ASIDE%}
+{%comment%}
+<div><a href={%url 'sutra-book-chapter' sutra.book.id sutra.chapter.id%}>{{sutra.chapter}}</a></div>
+<div>{{sutra.body|truncatewords_html:5}}</div>
+{#<div><a href={%url 'sutra-edit' sutra.id%}>{%trans "Edit"%}</a></div>#}
+{%block SECTION%}
+{%endblock SECTION%}
+{%endcomment%}

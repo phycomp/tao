@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Responsive Design</title>
+<link rel="stylesheet" type="text/css" href="css/responsive-menu-addition.css">
+<!--[if lt IE 9]>
+<script src="dist/html5shiv.js"></script>
+<![endif]-->
+</head>
+
+<body>
+<header>
+<h1>Pensacola Seafood Festival</h1>
+<div id='bannerPane'><img src="images/banner.png"></div>
+</header>
+<!--
+Originally provided by:
+http://medialoot.com/blog/how-to-create-a-responsive-navigation-menu-using-only-css/
+Tweaked by: http://SkeeterZ71.com
+ -->
+<nav><!--Begin Responsive Nav-->
+<!--CSS will hide this checkbox while at the same time during a media query,
+check the box to cause proper display of menu-->
+<label for="show-menu" class="show-menu">Show Menu</label>
+<input type="checkbox" id="show-menu" name="button">
+
+	<ul id="menu">
+		<li>
+			<a href="#">FIRST ITEMS ￬</a>
+				<ul class="hidden">
+					<li><a href="#">Item One</a></li>
+					<li><a href="#">Item Two</a></li>
+					<li><a href="#">Item Three</a></li>
+					<li><a href="#">Item Four</a></li>
+					<li><a href="#">Item Five</a></li>
+				</ul>
+		</li>
+	      
+		<li>
+			<a href="#">SECOND ITEMS ￬</a>
+				<ul class="hidden">
+					<li><a href="#">Item One</a></li>
+					<li><a href="#">Item Two</a></li>
+					<li><a href="#">Item Three</a></li>
+					<li><a href="#">Item Four</a></li>
+					<li><a href="#">Item Five</a></li>
+				</ul>
+		</li>
+		
+		<li>
+			<a href="#">THIRD ITEMS ￬</a>
+				<ul class="hidden">
+					<li><a href="#">Item One</a></li>
+					<li><a href="#">Item Two</a></li>
+					<li><a href="#">Item Three</a></li>
+					<li><a href="#">Item Four</a></li>
+					<li><a href="#">Item Five</a></li>
+				</ul>
+		</li>
+        
+        <li><a href="#">BLOG</a></li>
+		<li><a href="#">ABOUT US</a></li>
+		<li><a href="#">CONTACT US</a></li>
+    </ul>
+    
+</nav><!--End Responsive Nav-->
+
+
+<main>
+<section>
+<h2>Food for Every Taste</h2>
+<article>
+<h3>Crabs & Crawfish</h3>
+<p><img src="images/crawfish-and-crabs.png">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tincidunt placerat sapien et condimentum. Sed rutrum lobortis commodo. Fusce laoreet est id est pulvinar aliquet. Aliquam cursus neque in nibh porta dapibus. Nullam bibendum vulputate porta. Duis eros enim, mattis at mattis quis, dapibus eget nisi. Cras et gravida est, eu dictum diam. Nulla vestibulum elit quis lacus euismod tincidunt. Aliquam fermentum nisi vel tortor varius, non suscipit lectus rhoncus. Sed justo eros, pellentesque ut ligula at, luctus dictum ex.</p> 
+
+<p>Phasellus ultricies diam sit amet neque vehicula, facilisis tincidunt mauris varius. Phasellus lacinia vehicula purus, vitae ultrices libero. Phasellus eleifend urna eget nunc sollicitudin tempus. Fusce ut erat dapibus, congue dolor ac, fermentum nulla. Donec luctus sem ut tellus tempor sagittis. Ut suscipit quam nec mauris auctor, vitae varius turpis porttitor. Ut ac porttitor mauris. Donec non diam facilisis, imperdiet dolor vitae, vulputate libero. Vestibulum eget rhoncus mauris. Interdum et malesuada fames ac ante ipsum primis in faucibus.
+</p>
+</article>
+<article>
+<h3>Shish Kabobs</h3>
+<p><img src="images/kabobs.png">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tincidunt placerat sapien et condimentum. Sed rutrum lobortis commodo. Fusce laoreet est id est pulvinar aliquet. Aliquam cursus neque in nibh porta dapibus. Nullam bibendum vulputate porta. Duis eros enim, mattis at mattis quis, dapibus eget nisi. Cras et gravida est, eu dictum diam. Nulla vestibulum elit quis lacus euismod tincidunt. Aliquam fermentum nisi vel tortor varius, non suscipit lectus rhoncus. Sed justo eros, pellentesque ut ligula at, luctus dictum ex.</p> 
+
+<p>Phasellus ultricies diam sit amet neque vehicula, facilisis tincidunt mauris varius. Phasellus lacinia vehicula purus, vitae ultrices libero. Phasellus eleifend urna eget nunc sollicitudin tempus. Fusce ut erat dapibus, congue dolor ac, fermentum nulla. Donec luctus sem ut tellus tempor sagittis. Ut suscipit quam nec mauris auctor, vitae varius turpis porttitor. Ut ac porttitor mauris. Donec non diam facilisis, imperdiet dolor vitae, vulputate libero. Vestibulum eget rhoncus mauris. Interdum et malesuada fames ac ante ipsum primis in faucibus.
+</p>
+</article>
+</section>
+<section>
+<h2>Arts & Crafts</h2>
+<article>
+<h3>Wood Carvings</h3>
+<p><img src='images/carved-wood.png'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tincidunt placerat sapien et condimentum. Sed rutrum lobortis commodo. Fusce laoreet est id est pulvinar aliquet. Aliquam cursus neque in nibh porta dapibus. Nullam bibendum vulputate porta. Duis eros enim, mattis at mattis quis, dapibus eget nisi. Cras et gravida est, eu dictum diam. Nulla vestibulum elit quis lacus euismod tincidunt. Aliquam fermentum nisi vel tortor varius, non suscipit lectus rhoncus. Sed justo eros, pellentesque ut ligula at, luctus dictum ex.</p>
+
+<p>Phasellus ultricies diam sit amet neque vehicula, facilisis tincidunt mauris varius. Phasellus lacinia vehicula purus, vitae ultrices libero. Phasellus eleifend urna eget nunc sollicitudin tempus. Fusce ut erat dapibus, congue dolor ac, fermentum nulla. Donec luctus sem ut tellus tempor sagittis. Ut suscipit quam nec mauris auctor, vitae varius turpis porttitor. Ut ac porttitor mauris. Donec non diam facilisis, imperdiet dolor vitae, vulputate libero. Vestibulum eget rhoncus mauris. Interdum et malesuada fames ac ante ipsum primis in faucibus.
+</p>
+</article>
+<article>
+<h3>Ornaments</h3>
+<p><img src='images/ornaments.png'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tincidunt placerat sapien et condimentum. Sed rutrum lobortis commodo. Fusce laoreet est id est pulvinar aliquet. Aliquam cursus neque in nibh porta dapibus. Nullam bibendum vulputate porta. Duis eros enim, mattis at mattis quis, dapibus eget nisi. Cras et gravida est, eu dictum diam. Nulla vestibulum elit quis lacus euismod tincidunt. Aliquam fermentum nisi vel tortor varius, non suscipit lectus rhoncus. Sed justo eros, pellentesque ut ligula at, luctus dictum ex.</p>
+
+<p>Phasellus ultricies diam sit amet neque vehicula, facilisis tincidunt mauris varius. Phasellus lacinia vehicula purus, vitae ultrices libero. Phasellus eleifend urna eget nunc sollicitudin tempus. Fusce ut erat dapibus, congue dolor ac, fermentum nulla. Donec luctus sem ut tellus tempor sagittis. Ut suscipit quam nec mauris auctor, vitae varius turpis porttitor. Ut ac porttitor mauris. Donec non diam facilisis, imperdiet dolor vitae, vulputate libero. Vestibulum eget rhoncus mauris. Interdum et malesuada fames ac ante ipsum primis in faucibus.
+</p>
+</article>
+</section>
+</main>
+<aside>
+<p>Quick Poll: <br>Should the Seafood Festival Have One More Day?
+<form action="">
+<input type="radio" name="sex" value="yes">Yes<br>
+<input type="radio" name="sex" value="no">No
+</form>
+</p>
+<p>Join Hunger Free America</p>
+<h3>Quick Links</h3>
+<ul>
+<li><a href='#'>Link #1</a></li>
+<li><a href='#'>Link #2</a></li>
+<li><a href='#'>Link #3</a></li>
+<li><a href='#'>Link #4</a></li>
+</ul>
+</aside>
+<footer>
+<p>Footer Info Here</p>
+</footer>
+</body>
+
+
+</html>

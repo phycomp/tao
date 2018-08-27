@@ -1,0 +1,25 @@
+{%for post in user.author_post.all reversed%}
+{%if post.blog%}
+	<article>
+	<div><a href={%url 'me'%}><img style='width:20px' src={%url 'avatar-member' post.blog.author.id%}></a></div>
+	<div style='display:flex; flex:9; flex-flow:column'>
+	<div>{{post.blog.title}}</div>
+	<div style='color:red; display:inherit; '>{%autoescape off%}{{post.blog.body}}{%endautoescape%}</div>
+	<div><a href={%url 'blog-edit' post.blog.id%}>Edit</a></div>
+	<div><a href={%url 'blog-delete' post.blog.id%}>Delete</a></div>
+	<div style='display:flex; flex-flow:row wrap'>
+	{%for media in post.blog.media.all%}
+	<div style='width:40px; height:40px'><img style='max-width:auto; height:100%' src={%url 'avatar-raw' media.id%}></div>
+	{%endfor%}
+	</div>
+	</div>
+	</article>
+{%endif%}
+{%endfor%}
+{%comment%}
+{%else%}
+	<div><img src={%url 'avatar-member' post.author.id%}></div>
+	<div>else
+	<div style='color:red; display:inherit; '>{{post.body}}</div>
+	</div>
+{%endcomment%}

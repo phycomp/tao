@@ -1,0 +1,25 @@
+ta.addEventListener('keyup', evt=>{
+})
+	{%for comment in comments reversed%}
+		<div><a href={%url 'profile' comment.commentor.id%}><img src={%url 'avatar-member' comment.commentor.id%} style='with:40px;height:40px'></a>
+		<div style='flex:9'><div>{{comment.body}}</div>
+		</div>
+		<div>{{comment.timestamp|timesince}} ago</div>
+			{%for comment_blog in comment|commentblogself%}
+			<div><a href={%url 'profile' comment.commentor.id%}><img style='with:40px;height:40px' src={%url 'avatar-member' comment_blog.commentor.id%}></a>
+			<div style='flex:9'>{{comment_blog.body}}</div>
+			</div>
+			<div>{{comment_blog.timestamp|timesince}} ago</div>
+			{%endfor%}
+	<textarea rows=1 cid={{comment.id}} onkeyup='commentBlogSelf(this, event)'></textarea>
+	{%endfor%}
+	</div>
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)};
+</script>

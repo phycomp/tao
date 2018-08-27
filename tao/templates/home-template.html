@@ -1,0 +1,21 @@
+	{%load i18n utils%}
+	{%with medium=post.media.all pid=post.id author=post.author aid=post.author.id%}
+	<article pid={{pid}}>
+	<output style='margin-right:2px'>
+	<div onclick='postDelete(this, event)' pid={{pid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' aid%}"><img alt={{author}} class=small src={%url 'avatar-member' aid%}></a></div>
+	<div><a href={%url 'post-edit' pid%}>{%trans 'edit'%}</a></div>
+	<div onclick='postCtxEdit(this, event)' pid={{pid}}>ctxEdit</div>
+	</output>
+	<summary style='flex:9'>
+	<div><a href={%url 'post-detail' pid%}>{{post.body|truncatewords_html:15}}</a></div>
+		{%if medium%}<div>
+		{%for media in medium%}
+			{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+		{%endfor%}
+		</div>{%endif%}
+	<div><time>{{post.timestamp|timesince}} {%trans 'ago'%}</time></div>
+	</summary>
+	</article>
+	{%endwith%}

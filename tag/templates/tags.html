@@ -1,0 +1,88 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}-{%trans 'TAG'%}{%endblock TITLE%}
+{%block XHR%}
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)}
+</script>
+{%endblock XHR%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}; //id='snow-container'{%trans 'post add'%}action='{{post_add_url}}' 
+var form=getElement('form'); 
+var bid, rspData, formdata, ajax_url="{%url 'blog-add'%}", redirect_url="{%url 'blogs'%}";
+//input.type='text; input.name=title; input.placeholder='title'; 
+//var quill=new Quill('#snow-container', {placeholder:'Compose an epic...', theme:'snow'});
+
+function blogDelete(obj){
+bid=obj.getAttribute('bid');
+remove_url="{%url 'blog-delete'%}";
+//['/blog/delete/', blogID, '/'].join('');
+data=JSON.stringify({bid:bid});
+xhr.data_sent(remove_url, data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.BlogDeleted) obj.parentNode.parentNode.remove();//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+				else console.log('Blog Not Deleted'); };
+			};
+}
+function ONLOAD(){
+	form.addEventListener('submit', evt=>{
+		formdata=new FormData(form);
+		xhr.data_sent("{%url 'tag-add'%}", formdata);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.TagAdded)
+				{ //var article=form.nextElementSibling;
+					form.insertAdjacentHTML('afterend', rspData.ctx);
+					form.reset();  //form.appendChild(article);var article=document.createElement('article');"<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";
+				}//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";
+				else console.log('Blog Not Added') }
+		}
+		evt.preventDefault();
+	})
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+form{flex:1; }
+section aside{flex:1; }
+aside div{margin-right:2px; flex:1; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%block SECTION%}
+<section>
+<form enctype='multipart/form-data' method=POST validate>
+<input type=text name=tag placeholder=tag required>
+<button>{%trans 'Tag Add'%}</button>
+</form>
+<aside>
+{%for tag in tags%}
+<div><a href="{%url 'tag-detail' tag.id%}">{{tag}}</a></div>
+{%endfor%}
+</aside>
+</section>
+{%endblock SECTION%}
+
+</main>
+{%endblock MAIN%}
+{%comment%}
+{%block ASIDE%}
+<aside>
+{%for tag in tags%}
+<div><a href='{%url "tag" tag.id%}'>{{tag}}</a></div>
+{%endfor%}
+</aside>
+{%endblock ASIDE%}
+<textarea name=body cols=1 rows=2></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>#}
+{%endcomment%}

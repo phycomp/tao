@@ -1,0 +1,184 @@
+remove_url="{%url 'blog-delete' obj.id%}";
+/*
+<div id="snow-container" name=body></div>
+const input=document.createElement('INPUT');
+const f=getElement('input[type=file]');
+quill.root.innerHTML;
+var b=document.getElementById('postAdd');
+b.innerText="{%trans 'Blog Add'%}";
+input.setAttribute('type', 'text');
+input.setAttribute('name', 'title');
+input.setAttribute('placeholder', 'title');
+input.required=true;
+form.prepend(input);
+var textarea=getElement('textarea[name=body]');
+//rtrv_info(); textarea.value=quill.root.innerText;
+}
+*/
+{%block SCRIPT%}
+{{member_template}}
+{%endblock MAIN%}
+{%for post in user.author_post.all%}
+{%with post.blog as blog%}
+{%if blog%}
+	<div>{{blog.title}}</div>
+	<div>{{blog.body}}</div>
+	<div><a href={%url 'blog-edit' blog.id%}>{%trans "Edit"%}</a></div>
+{%endif%}
+{%endwith%}
+{%endfor%}
+.standalone-container{margin:50px auto; max-width:100%; background:brown; }
+/*.ql-editor data-placeholder::before{color:white; }*/
+/*
+section{flex:9; flex-flow:row; margin-top:10px; }
+article{flex:1; flex-flow:column; }
+article:hover{color:maroon; }
+article div{overflow:hidden; margin:2px; }
+article div a{text-decoration:none; color:yellow; }
+aside{flex:1; }
+aside a{text-decoration:none; color:yellow; }
+aside a:hover{text-decoration:none; color:magenta; }
+@media all and (max-width:324px){
+	main, section, article{flex-flow:column;}
+	//section{border:1px solid blue; margin:auto; width:90%; flex-grow:wrap; margin-top:10px; }
+}
+section div{padding:6px; flex-direction:column; }
+width:-webkit-fill-available;
+*/
+<script src={{MEDIA_URL}}js/ckeditor.js></script>
+<script>
+const ckeditor=document.querySelector('#editor');
+var CKEDITOR=ClassicEditor.create(ckeditor);
+CKEDITOR.catch( error => { console.error( error ); } );
+//const CONFIG=CKEDITOR.constructor();
+//CONFIG.resize_enabled=true;
+	summernote.onkeydown=function(evt){
+		if (evt.keyCode===13 && evt.altKey) {//console.log('alt+Enter');
+			rtrv_info();
+			xhr.data_sent(url, data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.UserExisted) form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+					else console.log('User Not Existed'); };
+					}
+			}
+	}
+/*var ta=document.querySelector('textarea');*/ 
+//var quill=new Quill('#editor', {theme:'snow'});
+<div><textarea id=summernote name=body placeholder=BLOGBODY cols=1 rows=1></textarea></div>
+$(document).ready(function() {
+      $('#summernote').summernote({ height: 300, tabsize: 2 });
+});
+<script src='{{MEDIA_URL}}js/jquery.min.js'></script>
+<script src='{{MEDIA_URL}}js/bootstrap.min.js'></script>
+<script type="text/javascript" src="../dist/summernote.js"></script>$
+<script src='{{MEDIA_URL}}js/summernote.js'></script>
+<div id=summernote></div>
+<link rel=stylesheet href='{{MEDIA_URL}}css/bootstrap.min.css'>
+<link rel=stylesheet href="{{MEDIA_URL}}css/summernote.css">
+
+<!-- Include the Quill library -->
+
+<!-- Initialize Quill editor -->
+
+.ck-editor{color:blue; }
+<link href="{{MEDIA_URL}}css/quill.core.css" rel=stylesheet>
+<meta name="description" content="Quill is a free, open source WYSIWYG editor built for the modern web. Completely customize it for any need with its modular architecture and expressive API.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@quilljs">
+<meta name="twitter:title" content="Snow Theme - Quill">
+<meta name="twitter:description" content="Quill is a free, open source rich text editor built for the modern web.">
+<meta name="twitter:image" content="https://quilljs.com/assets/images/brand-asset.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://quilljs.com/standalone/snow/">
+<meta property="og:image" content="https://quilljs.com/assets/images/brand-asset.png">
+<meta property="og:title" content="Snow Theme - Quill">
+<meta property="og:site_name" content="Quill">
+<link rel="canonical" href="https://quilljs.com/standalone/snow/">
+<link type="application/atom+xml" rel="alternate" href="https://quilljs.com/feed.xml" title="Quill - Your powerful rich text editor" />
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD();}
+function getElement(ele){return document.querySelector(ele)};
+const blogFile=getElement('input[name=blogFile]');
+const form=getElement('form');
+const t=getElement('input[name=title]');
+var xhr=new XMLHttpRequest();
+var allFiles, textareaData, rspData, data, url="{%url 'blog-add'%}", redirect_url="{%url 'me'%}";
+var formDict={}, formdata=new FormData();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		//this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		//this.setRequestHeader('Content-Type', 'application/json');
+		//this.setRequestHeader('Content-Type', 'multipart/form-data');
+		xhr.send(data);
+	};
+function rtrv_info(evt){
+	blogFiles=blogFile.files;
+	//for (var idx=0; idx<blogFiles.length; idx++) formdata.append('file', blogFiles[idx]);
+	//for (var idx in blogFiles) formdata.append('file', blogFiles[idx]);
+	//for (var idx in blogFiles) formData[idx]=blogFiles[idx];
+	//allFiles=formData.getAll('file');
+	title=t.value;
+	//textareaData='kdjfldkjflkda'; 	//
+	formdata=new FormData(form);
+	//formData=formdata.serialize();
+	formdata.set('textareaData', quill.root.innerText)
+	data=formdata;
+	//data={textareaData:textareaData, title:title, formData}; 
+	//data=JSON.stringify({textareaData:textareaData, title:title, formdata:formdata}); 
+	};
+function ONLOAD(){
+	form.addEventListener('submit', function(evt){
+		rtrv_info();
+		//formdata=new FormData(this);
+		//this.submit();
+		xhr.data_sent(url, data);
+		//xhr.data_sent(url, formdata);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.UserExisted) form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+				else console.log('User Not Existed'); };
+			};
+		evt.preventDefault();
+	});
+}
+</script>
+{%endblock SCRIPT%}
+{%block MAIN%}
+<main>
+<section>
+<form enctype='multipart/form-data' action={%url "blog-add"%} method=POST validate>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+<input type=file name=blogFile placeholder='attached files' multiple></div>
+</form>
+</section>
+{%include 'blog-template.html'%}
+</main>
+{%endblock MAIN%}
+<!--<div><input type=text name=title placeholder=title required>-->
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function querySelector(ele){return document.querySelector(ele)}
+function ById(ID){return document.getElementById(ID)}
+</script>
+/*
+#snow-container{ height:auto; }
+.ql-toolbar.ql-snow{background:silver; }
+.ql-editor{background:darkblue; height:auto; }
+article{flex:1; flex-flow:column; outline:1px solid red; margin:2px; }
+main{flex-flow:wrap;}
+//textarea[name=body]{display:none; }
+section div{flex:1; display:flex; margin:2px; }
+article{flex-flow:wrap; }
+article div{flex:1; }
+*/
+/ //id='snow-container'{%trans 'post add'%}action='{{post_add_url}}' /input.type='text; input.name=title; input.placeholder='title'; //form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+//var quill=new Quill('#snow-container', {placeholder:'Compose an epic...', theme:'snow'});
+//['/blog/delete/', blogID, '/'].join('');

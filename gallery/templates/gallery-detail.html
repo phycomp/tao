@@ -1,0 +1,83 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block SCRIPT%}
+<script>
+let galleryEdit=ById('galleryEdit'), DESCRP, description, formdata
+galleryEdit.addEventListener('submit', function(evt){
+	article=querySelector('article')
+	if(!document.contains(article))article=newData
+	formdata=new FormData(galleryEdit)
+	xhr.data_sent("{%url 'gallery-edit'%}", formdata);
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if(rspData.galleryUpdated){/*article.insertAdjacentHTML('beforebegin', rspData.ctx);*/ galleryEdit.reset()}
+			else console.log('Gallery Not Updated') }
+	}
+	evt.preventDefault()}, false)
+
+function mediaDescription(obj){
+	DESCRP=obj.previousElementSibling; description=DESCRP.value
+	data=JSON.stringify({mid:obj.getAttribute('mid'), description:description})
+	xhr.data_sent("{%url 'gallery-media-decription'%}", data)
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+			if(rspData.galleryMediaDescription)DESCRP.outerHTML='<div style="font-size:4vw; color:yellow">'+description+'</div>'//.innerHTML=description
+			else console.log('Media Not Deleted')}
+		}
+}
+
+function galleryMediaDelete(obj){
+	data=JSON.stringify({mid:obj.getAttribute('mid')});
+	xhr.data_sent("{%url 'gallery-media-delete'%}", data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.GalleryMediaDeleted) obj.parentNode.remove();
+			else console.log('Media Not Deleted'); };
+		};
+}
+
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+main{justify-content:center; }
+textarea{width:100%; border-radius:5px; margin-top:2px; }
+hgroup{flex:1; align-items:center; margin-bottom:2px; }
+output{margin-right:2px; }
+#galleryEdit{width:100%; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{%with medium=gallery.picture.all%}
+<form id=galleryEdit enctype='multipart/form-data' method=POST>
+{#<textarea id=galleryEditor name=body placeholder=GalleryBody cols=30 rows=8 required>{{gallery.post.body}}</textarea>#}
+<datalists>
+<input type=file name=pics placeholder="{%trans 'attached files'%}" multiple>
+<input type=text name=title placeholder='gallery title' value="{{title}}" required>
+<input type=hidden name=gid value={{gid}}>
+</datalists>
+{%for media in medium%}
+	<hgroup>
+	{%with mid=media.id%}
+	<output>
+	<div onclick='galleryMediaDelete(this, event)' mid={{mid}}>{%trans 'delete'%}</div>
+	<img class=small src={%url 'avatar-raw' mid%}>
+	</output>
+	<input type=text mid={{mid}} placeholder='media description' value="{{media.description}}" required>
+	<div mid={{mid}} onclick='mediaDescription(this)'>{%trans 'Description Edit'%}</div>
+	{%endwith%}
+	</hgroup>
+{%endfor%}
+<button>{%trans 'Gallery Edit'%}</button>
+</form>
+{%endwith%}
+</main>
+{%endblock MAIN%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%endblock ASIDE%}
+{%comment%}
+{%endcomment%}

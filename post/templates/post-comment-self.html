@@ -1,0 +1,15 @@
+{%load i18n%}
+{%with body=selv.body cmtID=selv.commentor_id selvID=selv.id timestamp=selv.timestamp%}
+<datalists>
+	<output style='margin-right:2px'>
+	{%if cmtID == userID%}<div onclick='commentPostSelfDelete(this)' cid={{comment.id}}>delete</div>
+	<a href={%url 'profile' cmtID%}><img title={{cmtID}} alt={{cmtID}} src={%url 'avatar-member' cmtID%} class=small></a>
+	<div onclick='commentPostSelfEdit(this, event)' selvID={{selvID}}>edit</div>
+	{%else%}<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>{%endif%}
+	</output>
+	<summary style='flex:9'>
+		<div>{{body}}</div>
+		<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	</summary>
+</datalists>
+{%endwith%}

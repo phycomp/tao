@@ -1,0 +1,24 @@
+{%load i18n utils%}
+<article>
+	{%with userID=user.id cmtID=comment.commentor_id cid=comment.id timestamp=comment.timestamp body=comment.body%}
+	<output style='margin-right:2px'>
+	{%if cmtID == userID%}<div onclick='commentBlogDelete(this)' cid={{cid}}>delete</div>
+	<a href={%url 'profile' cmtID%}><img alt={{cmtID}} src={%url 'avatar-member' cmtID%} class=small></a>
+	<div onclick='commentBlogEdit(this)' cid={{cid}}>edit</div>
+	{%else%}<a href={%url 'profile' cmtID%}><img alt={{cmtID}} src={%url 'avatar-member' cmtID%} class=small></a>{%endif%}
+	</output>
+	<summary>
+	<div>{{body}}</div>
+	<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	{%for selv in comment|commentblogself%}
+	{%with commentorID=selv.commentor_id BODY=selv.body TIMESTAMP=selv.timestamp CMID=selv.commentor.id CID=selv.id%}
+		{%include 'blog-comment-self.html' with approved=approved userID=userID%}
+	{%endwith%}
+	{%endfor%}
+	<form class=flexForm bid={{bid}} cid={{cid}} onsubmit='commentBlogSelf(this, event)'>
+	<textarea rows=1 required></textarea>
+	<button class=cbsBtn>{%trans 'Comment'%}</button>
+	</form>
+	</summary>
+	{%endwith%}
+</article>

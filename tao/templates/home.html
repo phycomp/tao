@@ -1,0 +1,164 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block SCRIPT%}
+<script>
+let idAttr='pid', url="{%url 'home-pagination'%}"
+window.onload=function(){ONLOAD()}
+window.onscroll=function(){infinitScroll(url, idAttr)};
+
+let postAdd=ById('postAdd'), ta=querySelector('textarea'), attached=querySelector('input[name=attached]'), section;
+
+	function postDelete(obj){
+		pid=obj.getAttribute('pid')
+		data=JSON.stringify({pid:pid});
+		xhr.data_sent("{%url 'post-delete'%}", data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.PostDeleted) obj.parentNode.parentNode.remove();//innerHTML="<div style='color:red'>Post removed!</div>";
+				else console.log('Post Not Deleted'); };
+			};
+	}
+
+function postCtxEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[0]//.getElementsByTagName('div')[0]
+	let pid=obj.getAttribute('pid'), section=summary.parentNode
+	if(!document.contains(txtarea)) {txtarea=createElement('textarea'); txtarea.id='bE'} 
+	txtarea.rows=1; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function pE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			let body=this.value
+			data=JSON.stringify({pid:pid, body:body})
+			xhr.data_sent("{%url 'post-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.postCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', pE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentPost Not Edited') }
+				}
+			}
+	})
+}
+
+
+	postAdd.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData;
+		formdata=new FormData(postAdd); 
+		if (txtarea.value||attached.files.length)
+			{ xhr.data_sent("{%url 'home'%}", formdata);
+			xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4&&this.status==200)
+					{ rspData=JSON.parse(this.responseText);
+					if (rspData.homePosted) { article.insertAdjacentHTML('beforebegin', rspData.ctx); postAdd.reset(); }
+					else console.log('User Not Existed') }
+				}
+			}
+		evt.preventDefault()}, false)
+
+var txtarea=ById('bE')
+function ONLOAD(){ }
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+<section>
+<form id=postAdd enctype=multipart/form-data action={%url 'post-add'%} method=POST validate>
+<textarea name=body cols=1 rows=2></textarea>
+<input type=file name=attached placeholder={%trans 'attached files'%} multiple>
+<button>{%trans 'post add'%}</button>
+</form>
+</section>
+{%endblock SECTION%}
+{%block ARTICLE%}
+{%for post in posts%}
+	{%with pid=post.id aid=post.author_id medium=post.media.all%}
+	<article pid={{pid}}>
+	<output style='margin-right:2px'>
+	{%if aid == userID%}<div onclick='postDelete(this, event)' pid={{pid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' aid%}"><img title={{aid}} alt={{aid}} class=small src={%url 'avatar-member' aid%}></a></div>
+	<div onclick='postCtxEdit(this, event)' pid={{pid}}>ctxEdit</div>
+	{%else%}
+	<div><a href="{%url 'profile' aid%}"><img alt={{author}} class=small src={%url 'avatar-member' aid%}></a></div>
+	{%endif%}
+	</output>
+	<summary style='flex:9'>
+		<div><a href={%url 'post-detail' pid%}>{{post.body}}</a></div>
+		{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+				{%endif%}
+			{%endfor%}
+			</picture>{%endif%}
+		<div><time>{{post.timestamp|timesince}} {%trans 'ago'%}</time></div>
+	</summary>
+	</article>
+	{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+	<div><a href={%url 'post-edit' pid%}>{%trans 'edit'%}</a></div>
+//infinitScroll(url, idAttr), data={}, newData=querySelector('.newData'), newdataOffsetTop, scrollPos, winHeight=window.innerHeight, paginationStatus=true, winnerHeight=window.innerHeight 
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; /*justify-content:center; align-items:center;*/ }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+/*img{width:20%; height:20%; }*/
+</style>
+<main>
+</main>
+modal.addEventListener('click', function(event){
+	this.style.display='none';
+})
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+{%endcomment%}

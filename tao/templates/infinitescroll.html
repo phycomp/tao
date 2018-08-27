@@ -1,0 +1,19 @@
+<div class=newData></div>
+<script>
+let data={}, idValue, newData=document.querySelector('.newData'), winnerHeight=window.innerHeight, paginationStatus=true
+function infinitScroll(url, idAttr){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset
+	idValue=newData.previousElementSibling.getAttribute(idAttr)
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus&&idValue)
+		{ data[idAttr]=idValue
+			xhr.data_sent(url, JSON.stringify(data));
+			paginationStatus=!paginationStatus
+			xhr.onreadystatechange=function(evt){
+			if(this.readyState===4 && this.status===200)
+				{ rspData=JSON.parse(this.response);
+				if (rspData.newData) {paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData);}
+				else console.log('newData not updated')}
+			}
+		}
+}
+</script>

@@ -1,0 +1,219 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block CSS%}
+<!--<link href="{{MEDIA_URL}}css/quill.snow.css" rel="stylesheet">
+<link href="{{MEDIA_URL}}css/quill.bubble.css" rel=stylesheet>
+<script src='{{MEDIA_URL}}js/quill.js'></script>-->
+{%endblock CSS%}
+{%block STYLE%}
+<style>
+form{width:100%; }
+output{margin-right:2px; }
+summary{flex:9; }
+</style>
+{%endblock STYLE%}
+{%block SCRIPT%}
+<script>
+let idAttr='fid', url="{%url 'forum-pagination'%}"
+window.onload=function(){ONLOAD()}
+window.onscroll=function(){infinitScroll(url, idAttr)}
+var article, fid, rspData, formdata, forumAdd=ById('forumAdd')
+
+function forumDelete(obj){
+	fid=obj.getAttribute('fid');
+	data=JSON.stringify({fid:fid});
+	xhr.data_sent("{%url 'forum-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.ForumDeleted) obj.parentNode.parentNode.remove()
+			else console.log('Forum Not Deleted') }
+		}
+}
+
+function forumCtxEdit(obj){
+	let body, summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[1]
+	let fid=obj.getAttribute('fid'), txtarea=ById('bE'), section=summary.parentNode
+	if(!document.contains(txtarea)) txtarea=createElement('textarea')
+	txtarea.rows=1; txtarea.id='bE'; txtarea.value=DIV.innerText; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function bE(evt)
+		{ body=this.value 
+			if (evt.keyCode===13&&evt.altKey&&body)
+			{ data=JSON.stringify({fid:fid, body:body})
+				xhr.data_sent("{%url 'forum-context-edit'%}", data);
+				xhr.onreadystatechange=function(evt)
+					{ if(this.readyState==4 && this.status==200)
+						{ rspData=JSON.parse(this.responseText);
+						if(rspData.forumCtxEdited){DIV.innerHTML=body; txtarea.value=''; txtarea.removeEventListener('keydown', bE); section.parentNode.removeChild(txtarea)}
+						else console.log('CommentBlog Not Deleted') }
+					}
+			}
+	evt.preventDefault()}, false) }
+
+	forumAdd.addEventListener('submit', function(evt){
+		article=querySelector('article')
+		if(!document.contains(article))article=newData
+		formdata=new FormData(forumAdd);
+		xhr.data_sent("{%url 'forum-add'%}", formdata); //xhr.data_sent(url, formdata);
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText);
+				if (rspData.forumAdded) { article.insertAdjacentHTML('beforebegin', rspData.ctx); forumAdd.reset()}
+				else console.log('Forum Not Added') }
+			}
+		evt.preventDefault()}, false)
+
+function ONLOAD(){ }
+
+</script>
+{%endblock SCRIPT%}
+{%block SECTION%}
+<form id=forumAdd enctype='multipart/form-data' method=POST validate>
+<input type=text name=title placeholder=title required>
+<textarea name=body cols=1 rows=2 required></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'Forum Add'%}</button>
+</form>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for forum in forums%}
+	{%with forumerID=forum.forumerID medium=forum.post.media.all timestamp=forum.timestamp body=forum.post.body title=forum.title.title fid=forum.id%}
+	<article fid={{fid}}>
+	<output>
+	{%if forumerID == userID%}<div onclick='forumDelete(this, event)' fid={{fid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' forumerID%}"><img alt={{forumerID}} class=small src={%url 'avatar-member' forumerID%}></a></div>
+	<div onclick='forumCtxEdit(this, event)' fid={{fid}}>ctxEdit</div>
+	{%else%}<div><a href="{%url 'profile' forumerID%}"><img alt={{forumerID}} class=small src={%url 'avatar-member' forumerID%}></a></div>{%endif%}
+	</output>
+	<summary>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<div><a href={%url 'forum-detail' fid%}>{{body}}</a></div>
+			{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	</article>
+	{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; /*justify-content:center; align-items:center;*/ }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+/*img{width:20%; height:20%; }*/
+</style>
+function infinitScroll(){
+	newdataOffsetTop=newData.offsetTop, scrollPos=window.pageYOffset, winnerHeight=window.innerHeight;
+	let fid=newData.previousElementSibling.getAttribute('fid')
+	if (scrollPos+winnerHeight>newdataOffsetTop&&paginationStatus)
+		{data=JSON.stringify({'fid':fid})
+		xhr.data_sent("{%url 'forum-pagination'%}", data);
+		paginationStatus=!paginationStatus
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState===4 && this.status===200)
+				{ rspData=JSON.parse(this.response);
+				if (rspData.newData) { paginationStatus=true; newData.insertAdjacentHTML('beforebegin', rspData.newData);}
+				else console.log('newData not inserted')}
+			}
+		}
+}
+
+var IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength, newData=querySelector('.newData')
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+{%block MAIN%}
+<main>
+</main>
+{%endblock MAIN%}
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)}
+</script>
+	<article>
+	<output style='flex:1'>
+	{%with post=forum.post%}
+	{%if perms.forum.can_delete%}<div><a href=# bid={{forum.id}} onclick='forumDelete(this);return false'>delete</a></div>{%endif%}
+	<a href={%url 'profile' post.author.id%}><img style='width:20px;height:20px' src={%url 'avatar-member' post.author.id%}></a>
+	{%if perms.forum.can_edit%}<div><a href={%url 'forum-edit' forum.id%}>edit</a></div>{%endif%}
+	</output>
+	<output>
+	<div>{{forum.title}}<time>{{forum.timestamp|timesince}} ago</time></div>
+	<div><a href={%url 'forum-detail' forum.id%}>{{post.body|truncatewords_html:5}}</a></div>
+	{%with medium=post.media.all%}
+		{%if medium%}<div>
+		{%for media in medium%}
+		<img style='width:40px;height:40px; margin:2px' src={%url 'avatar-raw' media.id%}>
+		{%endfor%}
+		</div>{%endif%}
+	{%endwith%}
+	{%endwith%}
+	</output>
+	</article>
+//['/forum/delete/', forumID, '/'].join('');
+/*
+article div{flex:1; }
+article div:hover{color:cyan; }
+article div img{max-width:100%; height:auto; }
+#snow-container{ height:auto; }
+.ql-toolbar.ql-snow{background:silver; }
+.ql-editor{background:darkblue; height:auto; }
+article{flex:1; flex-flow:column; outline:1px solid red; margin:2px; }
+main{flex-flow:wrap;}
+//textarea[name=body]{display:none; }
+section div{flex:1; display:flex; margin:2px; }
+article{flex-flow:wrap; }
+article div{flex:1; }
+*/
+{%endcomment%}

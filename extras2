@@ -1,0 +1,28 @@
+//form.appendChild(article);var article=document.createElement('article');"<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";
+/*
+output{flex:1}
+article{margin-top:2px}
+.newData{height:auto; }
+*/
+nav.style=scrollPos?'position:fixed':'';
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+	this.open('POST', url, true);
+	this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+	this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xhr.send(data);
+};
+		//this.setRequestHeader('Content-Type', 'text/html; charset=utf-8');
+		//this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		//this.setRequestHeader('Content-Type', 'multipart/form-data');
+{%block EXTRA%}
+{%endblock EXTRA%}
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)};
+</script>

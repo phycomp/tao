@@ -1,0 +1,24 @@
+form{margin:auto; width:50%; padding:20px; background-color:#f2f2f2; border-radius:10px}
+input{border-radius:5px; margin:2px; width:90%; padding:2px; }
+button{font-size:2vw; color:green; width:90%; padding:4px; text-transform:uppercase; }
+button:hover{color:blue; font-weight:bold; }
+::placeholder{font-size:2vw; }
+
+/*
+{box-sizing: border-box;
+min-height: 100vh;
+}
+header, main, footer{flex:1; border:0px solid blue; }
+nav, nav, nav, 
+nav{flex-flow:row; }
+@media all and (max-width:324px){
+	nav, main{flex-flow:column; }
+}
+
+@media all and (max-width:1024px){
+	main{flex-flow:column wrap; }
+}
+@media all and (max-width:768px){
+	main{flex-flow:column wrap; }
+}
+*/

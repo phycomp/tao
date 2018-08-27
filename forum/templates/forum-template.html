@@ -1,0 +1,22 @@
+	{%load i18n utils%}
+	{%with userID=user.id forumerID=forum.forumerID medium=forum.post.media.all timestamp=forum.timestamp title=forum.title.title body=forum.post.body post=forum.post fid=forum.id%}
+	<article fid={{fid}}>
+	<output>
+	{%if forumerID == userID%}
+	<div><a href="{%url 'profile' forumerID%}"><img alt={{forumerID}} class=small src={%url 'avatar-member' forumerID%}></a></div>
+	<div onclick='forumCtxEdit(this, event)' fid={{fid}}>ctxEdit</div>
+	{%else%}<div><a href="{%url 'profile' forumerID%}"><img alt={{forumerID}} class=small src={%url 'avatar-member' forumerID%}></a></div>{%endif%}
+	</output>
+	<summary>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<div><a href={%url 'forum-detail' fid%}>{{body}}</a></div>
+		{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+				{%endif%}
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	{%endwith%}
+	</article>

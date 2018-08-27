@@ -1,0 +1,15 @@
+{%load i18n utils%}
+<article>
+{%with timestamp=comment.timestamp body=comment.body cmtID=comment.commentor_id cid=comment.id%}
+<output style='margin-right:2px'>
+	<div onclick='commentSutraDelete(this)' cid={{cid}}>delete</div>
+	<div><a href={%url 'profile' cmtID%}><img title={{cmtID}} alt={{cmtID}} src={%url 'avatar-member' cmtID%} class=small></a></div>
+	<div onclick='commentSutraEdit(this)' cid={{cid}}>edit</div>
+</output>
+<summary>
+	<div>{{body}}</div>
+	<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	<textarea rows=1 cid={{cid}} sid={{sid}} onkeyup='commentSutraSelf(this, event)'></textarea>
+</summary>
+{%endwith%}
+</article>

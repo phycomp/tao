@@ -1,0 +1,3 @@
+		for media in request.FILES.getlist('attached'):
+			mdm=me.user_medium.create(media=media)
+			post.media.add(mdm)

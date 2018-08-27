@@ -1,0 +1,67 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}
+let formdata, mid, rspData, postEdit=ById('postEdit'), txtarea=ById('postEditor'), attached=querySelector('input[type=file]'), url="{%url 'post-edit' post.id%}"
+
+function postMediaDelete(obj){
+	data=JSON.stringify({mid:obj.getAttribute('mid')});
+	xhr.data_sent("{%url 'post-media-delete'%}", data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.PostMediaDeleted) obj.parentNode.remove();
+			else console.log('Media Not Deleted'); };
+		};
+}
+function ONLOAD(){
+	postEdit.addEventListener('submit', function(evt){
+		formdata=new FormData(postEdit); 
+		if (txtarea.value||attached.files.length)
+			{ xhr.data_sent(url, formdata);
+				xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.PostUpdated) window.location=url//postEdit.reset()//innerHTML="<div style='color:red'>Post Updated</div>";
+					else console.log('Post Not Updated') }
+				}
+			}
+		evt.preventDefault()}, false)
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+textarea{width:100%; border-radius:5px; margin-top:2px; }
+#postEdit{width:100%; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+<form id=postEdit action={%url "post-edit" post.id%} enctype=multipart/form-data method=POST>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+<textarea id=postEditor name=body placeholder=PostBody cols=30 rows=8 required>{{post.body}}</textarea>
+<datalists>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+{%with medium=post.media.all%}
+{%for media in medium%}<output>
+	{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'><div onclick='postMediaDelete(this, event)' mid={{media.id}}>{%trans 'delete'%}</div>
+	{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+</output>{%endfor%}
+{%endwith%}
+</datalists>
+<button>{%trans 'Post Edit'%}</button>
+</form>
+{%endblock SECTION%}
+{%comment%}
+<main>
+main{justify-content:center; }
+</main>
+<script src={{MEDIA_URL}}js/ckeditor.js></script>
+ClassicEditor.create(document.querySelector('#editor') ).catch( error => { console.error( error ) } )
+/*
+.ck-editor { color:green; }
+.wrapper{display:flex; margin:20px auto}
+input[type=text]{width:100%; margin-bottom:20px}
+textarea{width:100%; }
+button{display:block; margin-top:20px; margin:0 auto}
+*/
+{%endcomment%}

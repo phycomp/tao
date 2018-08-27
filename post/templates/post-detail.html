@@ -1,0 +1,301 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block SCRIPT%}
+<script>
+let rspData, pid, output, DIV, main, cid, article, datalists, body, attached=document.querySelector('input[name=attached]'), flexForm, flexFormID='postFF', txtarea
+window.onload=function(){ONLOAD()}
+
+function commentPostEdit(obj, evt){
+	let output=obj.parentNode.nextElementSibling, DIV=output.getElementsByTagName('div')[0], BODY=document.querySelector('body')
+	cid=obj.getAttribute('cid'), article=obj.parentNode.parentNode;
+	flexForm=document.getElementById(flexFormID)
+	if(!document.contains(flexForm))createFlexForm()
+	txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('submit', function cPE(event)
+		{ data=JSON.stringify({cid:obj.getAttribute('cid'), body:txtarea.value})//formdata=new FormData(flexForm)
+		xhr.data_sent("{%url 'post-comment-edit'%}", data)
+		xhr.onreadystatechange=function(event)
+			{if(this.readyState==4&&this.status==200)
+				{rspData=JSON.parse(this.responseText)
+				if(rspData.commentPostEdited){DIV.innerHTML=txtarea.value; flexForm.removeEventListener('submit', cPE); BODY.removeChild(flexForm)}
+				else console.log('CommentPost Not Edited') }
+			}
+		event.preventDefault()}, false)}
+
+function createFlexForm()
+		{flexForm=document.createElement('form'); flexForm.id=flexFormID; flexForm.method='post'
+		flexForm.style.display='flex'; flexForm.style.width='100%'
+		txtarea=document.createElement('textarea'); btn=document.createElement('button'); btn.innerHTML='Post Edit'; btn.style.flex=1;
+		txtarea.rows=1; flexForm.appendChild(txtarea); flexForm.appendChild(btn) }
+
+function commentPostSelfEdit(obj)
+	{ output=obj.parentNode; datalists=output.parentNode; DIV=output.nextElementSibling.getElementsByTagName('div')[0]
+	selvID=obj.getAttribute('selvID'); article=obj.parentNode.parentNode
+	flexForm=document.getElementById(flexFormID)
+	if(!document.contains(flexForm))createFlexForm()
+	txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('submit', function cPSE(event)
+		{ data=JSON.stringify({selvID:selvID, body:txtarea.value})//data=new FormData(flexForm)
+		xhr.data_sent("{%url 'post-comment-self-edit'%}", data)
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4&&this.status==200)
+				{ rspData=JSON.parse(this.responseText)
+				if(rspData.commentPostSelfEdited){DIV.innerHTML=txtarea.value; flexForm.removeEventListener('submit', cPSE); datalists.parentNode.removeChild(flexForm)}
+					else console.log('CommentSutra Not Deleted')}
+			}
+		event.preventDefault()}, false) }
+
+function commentPostSelfDelete(obj)
+	{ data=JSON.stringify({selvID:obj.getAttribute('selvID')})
+	xhr.data_sent("{%url 'post-comment-self-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+			if (rspData.commentPostSelfDelete) { obj.parentNode.parentNode.remove()}
+			else console.log('CommentPostSelf Not Deleted') }
+		}
+	}
+
+function commentPostSelf(obj, evt)
+	{ body=obj.getElementsByTagName('textarea')[0].value
+	data=JSON.stringify({cid:obj.getAttribute('cid'), pid:obj.getAttribute('pid'), body:body})
+	xhr.data_sent("{%url 'post-comment-self'%}", data)
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+		{ rspData=JSON.parse(this.responseText)
+			if (rspData.commentPostSelf) { obj.insertAdjacentHTML('beforebegin', rspData.ctx); obj.reset() }
+			else console.log('CommentPostSelf Not Posted') }
+	}
+	evt.preventDefault()}
+
+function commentPostDelete(obj){
+data=JSON.stringify({cid:obj.getAttribute('cid')})
+xhr.data_sent("{%url 'post-comment-delete'%}", data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.commentPostDelete) { obj.parentNode.parentNode.remove()}
+				else console.log('CommentPost Not Deleted') }
+			}
+}
+
+function commentPost(obj, evt){
+	body=obj.getElementsByTagName('textarea')[0].value
+	data=JSON.stringify({pid:obj.getAttribute('pid'), body:body})
+	xhr.data_sent("{%url 'post-comment'%}", data)
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+		{ rspData=JSON.parse(this.responseText)
+		if(rspData.commentPosted) { obj.insertAdjacentHTML('afterend', rspData.ctx); obj.reset()}
+		else console.log('CommentPost Not Posted')}
+	}
+	evt.preventDefault()}
+
+{%if approved%}
+let postEdit=document.getElementById('postEdit')
+	postEdit.addEventListener('submit', function(evt){
+		formdata=new FormData(postEdit); 
+		xhr.data_sent("{%url 'post-edit'%}", formdata)
+		xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200){rspData=JSON.parse(this.responseText);
+			if (rspData.postUpdated) window.location=url//postEdit.reset()//innerHTML="<div style='color:red'>Post Updated</div>";
+			else console.log('Post Not Updated') }
+		}
+		evt.preventDefault()}, false)
+
+function postMediaDelete(obj)
+	{ data=JSON.stringify({mid:obj.getAttribute('mid')});
+		xhr.data_sent("{%url 'post-media-delete'%}", data);
+		xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+				if (rspData.PostMediaDeleted) obj.parentNode.remove()
+				else console.log('Media Not Deleted') }
+		}
+	}
+
+{%endif%}
+
+function ONLOAD(){
+}
+
+</script>
+{%endblock SCRIPT%}
+
+{%block STYLE%}
+<style>
+datalists:nth-child(odd){color:#00ffff}
+summary{flex:9; }
+</style>
+{%endblock STYLE%}
+
+{%block SECTION%}
+{%if approved%}
+<details>
+<form id=postEdit enctype=multipart/form-data method=POST>
+<input type=hidden value={{pid}} name=pid>
+<textarea name=body placeholder=PostBody cols=30 rows=8 required>{{body}}</textarea>
+<datalists>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+{%for media in medium%}<output>
+	{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'><div onclick='postMediaDelete(this, event)' mid={{media.id}}>{%trans 'delete'%}</div>
+	{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+</output>{%endfor%}
+</datalists>
+<button>{%trans 'Post Edit'%}</button>
+</form>
+</details>
+{%endif%}
+<section>
+	<output style='margin-right:2px'>
+	<div><a href={%url 'profile' aid%}><img class=small src={%url 'avatar-member' aid%}></a></div>
+	</output>
+	<summary>
+	<div>{%autoescape off%}{{post.body}}{%endautoescape%}</div>
+	<div><time>{{post.timestamp|timesince}} {%trans 'ago'%}</time></div>
+		{%if medium%}<picture>
+		{%for media in medium%}
+			{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>
+			{%endif%}
+		{%endfor%}
+		</picture>{%endif%}
+	</summary>
+</section>
+<form class=flexForm pid={{pid}} onsubmit='commentPost(this, event)' validate>
+	<textarea rows=1 required></textarea>
+	<button style='flex:5'>{%trans 'Post comment'%}</button>
+</form>
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for comment in comments reversed%}
+{%with cid=comment.id cmtID=comment.commentor_id body=comment.body timestamp=comment.timestamp%}
+<article>
+<output style='margin-right:2px'>
+	{%if cmtID == userID%}
+	<div onclick='commentPostDelete(this)' cid={{cid}}>delete</div>
+	<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>
+	<div onclick='commentPostEdit(this, event)' cid={{cid}}>edit</div>
+	{%else%}<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>{%endif%}
+</output>
+<summary>
+	<div>{{body}}</div>
+	<div><time>{{timestamp|timesince}} ago</time></div>
+	{%for selv in comment|commentpostself%}
+	{%with cmtID=selv.commentor_id selvID=selv.id body=selv.body timestamp=selv.timestamp%}
+	<datalists>
+		<output style='margin-right:2px'>
+		{%if cmtID == userID%}
+		<div onclick='commentPostSelfDelete(this)' selvID={{selvID}}>delete</div>
+		<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>
+		<div onclick='commentPostSelfEdit(this, event)' selvID={{selvID}}>edit</div>
+		{%else%}<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>{%endif%}
+		</output>
+		<summary style='flex:9'>
+			<div>{{body}}</div>
+			<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		</summary>
+	</datalists>
+	{%endwith%}
+	{%endfor%}
+	<form class=flexForm cid={{cid}} pid={{pid}} onsubmit='commentPostSelf(this, event)' method=post validate>
+	<textarea rows=1 required></textarea>
+	<button style='flex:1'>{%trans 'comment'%}</button>
+	</form>
+</summary>
+</article>
+{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+/*
+	function postDelete(obj){
+		pid=obj.getAttribute('pid')
+		data=JSON.stringify({pid:pid});
+		xhr.data_sent("{%url 'post-delete'%}", data);
+		xhr.onreadystatechange=function(evt){
+			if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+				if (rspData.PostDeleted) obj.parentNode.parentNode.parentNode.remove();//innerHTML="<div style='color:red'>Post removed!</div>";
+				else console.log('Post Not Deleted'); };
+			};
+	}
+*/
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; /*justify-content:center; align-items:center;*/ }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+/*img{width:20%; height:20%; }*/
+</style>
+let IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+/*function postCtxEdit(obj){
+	summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[0]//.getElementsByTagName('div')[0]
+	pid=obj.getAttribute('pid'), flexForm=document.getElementById('bE'), section=summary.parentNode
+	if(!document.contains(flexForm)) flexForm=document.createElement('form')
+	txtarea.rows=1; txtarea.id='bE'; txtarea.value=DIV.innerHTML; section.insertAdjacentElement('beforebegin', txtarea)
+	txtarea.addEventListener('keydown', function pE(evt){
+		if (evt.keyCode===13&&evt.altKey&&this.value){
+			body=this.value
+			data=JSON.stringify({pid:pid, body:body})
+			xhr.data_sent("{%url 'post-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt){
+				if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+					if (rspData.postCtxEdited) { DIV.innerHTML=body; txtarea.value='';
+					txtarea.removeEventListener('keydown', pE)
+					section.parentNode.removeChild(txtarea)
+					}
+					else console.log('CommentPost Not Edited') }
+				}
+			}
+	})
+}
+*/
+	{#<div onclick='postCtxEdit(this)' pid={{pid}}>{%trans 'ctxEdit'%}</div>#}
+		{flexForm=document.createElement('form'); flexForm.id='cPE'; 
+		txtarea=document.createElement('textarea'); btn=document.createElement('button')
+		txtarea.rows=1; txtarea.value=DIV.innerHTML;
+		flexForm.appendChild(txtarea); flexForm.appendChild(btn); }
+{%endcomment%}

@@ -1,0 +1,52 @@
+<div class=newData></div>
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<aside></aside>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+aside{position:fixed; bottom:100px; font-size:3vw; margin:auto; width:50%; }
+</style>
+<script>
+var MODAL=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal'), aside=querySelector('aside')
+var MODAL, Images=[], IMGs={}, imgLength
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ imgsrc=images[idx].getAttribute('src')
+		Images.push(imgsrc)
+		IMGs[idx]=imgsrc }
+	modal.style.display='flex'
+	innerWidth=modal.innerWidth; innerHeight=modal.innerHeight
+	MODAL.src=obj.getAttribute('src')
+	MODAL.style.width=innerWidth
+	MODAL.style.height=innerHeight
+	aside.innerHTML=obj.getAttribute('alt')
+}
+function slideRight(obj){
+	imgsrc=MODAL.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	MODAL.src=IMGs[idx+1]
+	aside.innerHTML=descr; IMG.alt=descr
+}
+function slideLeft(obj){
+	imgsrc=MODAL.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	MODAL.src=IMGs[idx-1]
+	aside.innerHTML=descr; IMG.alt=descr
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+</script>

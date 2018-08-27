@@ -1,0 +1,53 @@
+{%extends 'base.html'%}
+{%block CSS%}
+<link rel=stylesheet href='{{MEDIA_URL}}css/leaflet.css' integrity='' crossorigin=''>
+<link rel=stylesheet href='{{MEDIA_URL}}css/Control.FullScreen.css'>
+{%endblock CSS%}
+{%block JS%}
+<script src={{MEDIA_URL}}js/leaflet.js integrity='' crossorigin=''></script>
+<script src='{{MEDIA_URL}}js/Control.FullScreen.js'></script>
+{%endblock JS%}
+{%block STYLE%}
+<style>
+#taoMap {height:400px; margin:auto; }
+main{justify-content:center; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<div id=taoMap style='width:90%'></div>
+<script>
+	//var taipeiPos=[25.0270000, 121.545745]
+	var taipeiPos=[25.0821886,121.49152349999997]
+	var taoMap=L.map('taoMap', {position:'topleft', title:'Show me the fullscreen !', titleCancel:'Exit fullscreen mode', content:null, forceSeparateButton:true, forcePseudoFullscreen:true, fullscreenElement:false}).setView(taipeiPos, 13);
+	//var taoMap=L.map('map', {zoom:12, center:new L.latLng(41.8990, 12.4977), layers:L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png') });
+	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', { maxZoom: 18,
+		attribution: "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, " +
+			"<a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, " +
+			"Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>",
+		id:'mapbox.streets'
+	}).addTo(taoMap);
+
+	L.marker(taipeiPos).addTo(taoMap).bindPopup('<b>Hello world!</b><br>HOME.').openPopup();
+	L.circle(taipeiPos, 500, {color:'red', fillColor:'#f03', fillOpacity:.5}).addTo(taoMap).bindPopup('I am a circle.');
+	var polygon=L.polygon([
+		[25.037, 121.53], [25.010099, 121.535244], [25.038719, 121.574191]
+	]).addTo(taoMap).bindPopup('I am a polygon.');
+	polygon.bindTooltip('taoPolygon', {permanent:true, direction:'center'}).openTooltip();
+
+	var popup = L.popup();
+	function onMapClick(e){popup.setLatLng(e.latlng).setContent('You clicked the map at '+e.latlng.toString()).openOn(taoMap) }
+	taoMap.on('click', onMapClick);
+	//var map=new L.Map('map', {fullscreenControl:true, fullscreenControlOptions:{position:'topleft'} });
+	L.control.fullscreen().addTo(taoMap);
+</script>
+
+</main>
+{%endblock MAIN%}
+{%comment%}
+{%block SCRIPT%}
+<script>
+var taoMap = L.map('mapid').setView([51.505, -0.09], 13);
+</script>
+{%endblock SCRIPT%}
+{%endcomment%}

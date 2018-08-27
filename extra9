@@ -1,0 +1,9 @@
+form{display:inherit; margin:0 auto; }
+	input[type=submit]{width:100%; cursor:pointer}
+<div class=container>
+</div>
+{%block CSS%}<link rel=stylesheet href="{{MEDIA_URL}}css/logout.css">{%endblock CSS%}
+	<input type=text name=identifier id=username placeholder={%trans 'identifier'%}><br>
+	<input type=password name=password id=password placeholder={%trans 'password'%}><br>
+	<label for=username>用戶名稱:</label>
+	<label for=password>用戶密碼:</label>

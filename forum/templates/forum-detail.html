@@ -1,0 +1,370 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block TITLE%}-{{forum.title.title}}{%endblock TITLE%}
+{%block SCRIPT%}
+<script>
+window.onload=function(){ONLOAD()}
+let rspData, flexForm, flexFormID='forumFF', output, DIV, main, fid, article, BODY
+
+function createFlexForm()
+	{flexForm=document.createElement('form'); flexForm.id=flexFormID; flexForm.method='post'
+	flexForm.style.display='flex'; flexForm.style.width='100%'
+	txtarea=document.createElement('textarea'); btn=document.createElement('button'); btn.innerHTML='Blog Edit'; btn.style.flex=1;
+	txtarea.rows=1; flexForm.appendChild(txtarea); flexForm.appendChild(btn) }
+
+function forumReplyDelete(obj)
+	{ data=JSON.stringify({fid:obj.getAttribute('fid')})
+	xhr.data_sent("{%url 'forum-reply-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+			if (rspData.forumReplyDelete){ obj.parentNode.parentNode.remove()}
+			else console.log('SelfForumReply Not Deleted') }
+		}
+	}
+
+function forumReplyEdit(obj)
+	{ output=obj.parentNode; datalists=output.parentNode; DIV=output.nextElementSibling.getElementsByTagName('div')[0]
+	fid=obj.getAttribute('fid'); article=obj.parentNode.parentNode
+	flexForm=document.getElementById(flexFormID)
+	if(!document.contains(flexForm)) createFlexForm()
+	txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('submit', function fRE(event)
+		{ data=JSON.stringify({fid:fid, body:txtarea.value})
+		xhr.data_sent("{%url 'forum-reply-edit'%}", data)
+		xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText)
+				if(rspData.forumReplyEdit){DIV.innerHTML=txtarea.value; flexForm.removeEventListener('submit', fRE); datalists.parentNode.removeChild(flexForm) }
+				else console.log('SelfSutra Not Deleted') }
+			}
+		event.preventDefault()}, false)}
+
+/*function forumDelete(obj){
+	var data=JSON.stringify({bid:obj.getAttribute('bid')});
+	console.log(data);
+	xhr.data_sent("{%url 'forum-delete'%}", data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.ForumDeleted) obj.parentNode.parentNode.parentNode.innerHTML="<div style='color:red'>Forum removed!</div>";//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";//console.log('User Existed');
+			else console.log('Forum Not Deleted'); };
+		};
+}*/
+
+function forumSelfEdit(obj, evt)
+	{ output=obj.parentNode.nextElementSibling; DIV=output.getElementsByTagName('div')[1]; BODY=querySelector('body')
+	fid=obj.getAttribute('fid'); article=obj.parentNode.parentNode
+	if(!document.contains(flexForm)) createFlexForm()
+	txtarea.value=DIV.innerHTML; article.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('submit', function fSE(event)
+		{ data=JSON.stringify({fid:obj.getAttribute('fid'), body:txtarea.value})
+		xhr.data_sent("{%url 'forum-self-edit'%}", data);
+		xhr.onreadystatechange=function(event)
+			{if(this.readyState==4&&this.status==200)
+				{rspData=JSON.parse(this.responseText)
+				if(rspData.forumSelfEdit){DIV.innerHTML=txtarea.value; flexForm.removeEventListener('keydown', fSE); BODY.removeChild(flexForm)}
+				else console.log('SelfForum Not Edited') }
+			}
+		event.preventDefault()}, false)}
+
+function forumSelfDelete(obj)
+	{ data=JSON.stringify({fid:obj.getAttribute('fid')})
+	xhr.data_sent("{%url 'forum-self-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+			if (rspData.forumSelfDelete) { obj.parentNode.parentNode.remove()}
+			else console.log('SelfForum Not Deleted') }
+		} }
+
+function forumSelf(obj, evt)
+	{ data=JSON.stringify({fid:obj.getAttribute('fid'), body:obj.value})
+	xhr.data_sent("{%url 'forum-self'%}", data)
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText)
+			if (rspData.forumSelfPosted) { obj.insertAdjacentHTML('afterend', rspData.ctx); obj.value='' } 
+			else console.log('comment Not Posted') }
+		}
+	}
+
+function forumReply(obj, evt)
+	{ data=JSON.stringify({fid:obj.getAttribute('fid'), body:obj.value})
+	xhr.data_sent("{%url 'forum-reply'%}", data)
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{rspData=JSON.parse(this.responseText)
+			if(rspData.forumReply){obj.insertAdjacentHTML('beforebegin', rspData.ctx); obj.reset()}
+			else console.log('SelfForumReply Not Posted')}
+		}
+	evt.preventDefault()}
+
+function ONLOAD(){ }
+
+{%if forum.forumerID == user.id%}
+let forum_self=ById('forumSelf'), forum_reply=ById('forumReply'), attached, showStatus
+
+function forumToggle(obj){
+	showStatus=obj.getAttribute('show')=='forumSelf'
+	forum_reply.style.display=showStatus?'none':'block'
+	forum_self.style.display=showStatus?'block':'none'
+}
+forum_reply.addEventListener('submit', function(event){
+		article=querySelector('article')
+		if(!document.contains(article)) article=querySelector('.modal')//=document.createElement('article')
+		//txtarea=this.getElementsByTagName('textarea')[0]
+		attached=this.querySelector('input[name=attached]');
+		formdata=new FormData(this); 
+		//if (attached.files.length)
+			xhr.data_sent("{%url 'forum-reply'%}", formdata);
+			xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4 && this.status==200)
+				{ rspData=JSON.parse(this.responseText);
+					if (rspData.forumReply) {article.insertAdjacentHTML('beforebegin', rspData.ctx); forum_reply.reset()} 
+					else console.log('forum Not Replied') }
+			}
+		event.preventDefault()}, false)
+
+forum_self.addEventListener('submit', function(event){
+		article=querySelector('article')
+		formdata=new FormData(this); 
+		//txtarea=this.getElementsByTagName('textarea')[0];
+		attached=this.querySelector('input[name=attached]');
+		//if (attached.files.length)
+			xhr.data_sent("{%url 'forum-self'%}", formdata);
+			xhr.onreadystatechange=function(evt)
+			{ if(this.readyState==4&&this.status==200)
+				{rspData=JSON.parse(this.responseText);
+				if(rspData.forumSelf){article.insertAdjacentHTML('beforebegin', rspData.ctx); forum_self.reset()} 
+				else console.log('Forum Not Selfed') }
+			}
+		event.preventDefault()}, false)
+
+{%endif%}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+section{flex:1; flex-flow:row; }
+section output{flex-flow:column }
+article div{margin-right:2px; }
+article:nth-child(odd){color:#00ffff}
+output div{margin-down:2px; }
+textarea{flex:16; margin-top:2px; }
+input[type=file]{flex:3; display:flex; display:-webkit-flex; margin:2px; }
+button{flex:1; }
+hgroup{align-items:center; }
+#forumSelf{display:none; }
+#forumReply{display:block; }
+</style>
+{%endblock STYLE%}
+{%block SECTION%}
+<section>
+	<output style='margin-right:2px'>
+		<a href={%url 'profile' forumerID%}><img class=small src={%url 'avatar-member' forumerID%}></a>
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{timestamp|timesince}} ago</time></div>
+		<div>{%autoescape off%}{{body}}{%endautoescape%}</div>
+		{%if medium%}<picture>
+			{%for media in medium%}
+				{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+				{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+			{%endfor%}
+		</picture>{%endif%}
+	</summary>
+</section>
+<section style='justify-content:space-evenly;font-size:3vw'>
+	<div show=forumReply onclick='forumToggle(this)'>{%trans 'reply'%}</div><div show=forumSelf onclick='forumToggle(this)'>{%trans 'forum self'%}</div>
+</section>
+<form class=flexForm id=forumSelf method=post enctype='multipart/form-data' validate>
+<textarea rows=1 fid={{fid}} placeholder=ForumBody name=body required></textarea>
+<input type=hidden name=fid value={{fid}}>
+<hgroup>
+<input type=text name=title placeholder='forum title' style='flex:6' value="Reply:{{title}}" required>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'forum self'%}</button>
+</hgroup>
+</form>
+<form class=flexForm id=forumReply method=post enctype='multipart/form-data' validate>
+<input type=hidden name=fid value={{fid}}>
+<hgroup>
+<textarea fid={{fid}} placeholder=ForumBody name=body required></textarea>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+<button>{%trans 'forum reply'%}</button>
+</hgroup>
+</form>
+{%endblock SECTION%}
+
+{%block EXTRA%}
+{%if approved%}
+<details>
+<form id=forumEdit enctype=multipart/form-data method=POST>
+<input type=hidden value={{fid}} name=fid>
+<input type=text name=title placeholder='forum title' value="{{title}}" required>
+<textarea name=body placeholder=ForumBody cols=30 rows=8 required>{{body}}</textarea>
+<datalists>
+<input type=file name=attached placeholder="{%trans 'attached files'%}" multiple>
+	{%if medium%}<picture>
+	{%for media in medium%}<output>
+		{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'><div onclick='forumMediaDelete(this, event)' mid={{media.id}}>{%trans 'delete'%}</div>
+		{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+	</output>{%endfor%}
+	</picture>{%endif%}
+</datalists>
+<button>{%trans 'Forum Edit'%}</button>
+</form>
+<script>
+	let forumEdit=document.getElementById('forumEdit')
+	forumEdit.addEventListener('submit', function(evt)
+		{ formdata=new FormData(forumEdit); 
+		xhr.data_sent("{%url 'forum-edit'%}", formdata);
+		xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4&&this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.forumUpdated) window.location="{%url 'forum-detail' fid%}"
+			else console.log('Forum Not Updated') }
+		}
+		evt.preventDefault()}, false)
+
+function forumMediaDelete(obj){
+	data=JSON.stringify({mid:obj.getAttribute('mid')});
+	xhr.data_sent("{%url 'forum-media-delete'%}", data);
+	xhr.onreadystatechange=function(evt)
+		{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.ForumMediaDeleted) obj.parentNode.remove()
+			else console.log('Media Not Deleted')}
+		} }
+</script>
+</details>
+{%endif%}
+{%endblock EXTRA%}
+
+{%block ARTICLE%}
+{%for selv in selves%}
+{%with body=selv.post.body title=selv.title.title fid=selv.id medium=selv.post.media.all forumerID=selv.forumerID timestamp=selv.timestamp%}
+<article fid={{fid}} forumerID={{forumerID}} userID={{userID}}>
+<output style='margin-right:2px'>
+	{%if forumerID == userID%}
+		{%if title%}<div onclick='forumSelfDelete(this)' fid={{fid}}>delete</div>
+			<a href={%url 'profile' forumerID%}><img alt={{forumerID}} src={%url 'avatar-member' forumerID%} class=small></a>
+			<div onclick='forumSelfEdit(this, event)' fid={{fid}}>ctxEdit</div>
+		{%else%}<div onclick='forumReplyDelete(this, event)' fid={{fid}}>delete</div>
+			<a href={%url 'profile' forumerID%}><img alt={{forumerID}} src={%url 'avatar-member' forumerID%} class=small></a>
+			<div onclick='forumReplyEdit(this, event)' fid={{fid}}>ctxEdit</div>{%endif%}
+	{%else%}<a href={%url 'profile' forumerID%}><img alt={{forumerID}} src={%url 'avatar-member' forumerID%} class=small></a>{%endif%}
+</output>
+<summary style='flex:9'>
+	{%if title%}<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>{%endif%}
+	<div>{{body}}</div>
+	{#<textarea rows=1 fid={{fid}} onkeyup='forumReply(this, event)'></textarea>#}
+	{%if medium%}<picture>
+		{%for media in medium%}
+			{%if media|isImage%}<img class=small src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%else%}<a href={%url 'avatar-raw' media.id%}>{{media.filename}}</a>{%endif%}
+		{%endfor%}
+		</picture>{%endif%}
+</summary>
+</article>
+{%endwith%}
+{%endfor%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}
+{%comment%}
+, IMG=ById('MODAL'), modal=querySelector('.modal'), modalContainer=querySelector('.modalContainer'), modalClose=querySelector('.closeModal')
+var IMG, Images=[], IMGs={}, imgLength, 
+document.addEventListener('keyup', function(event){
+	if(event.which==27) modal.style.display='none';
+})
+<div class=modal>
+<span class=closeModal onclick='closeModal(this)'>&times;</span>
+<span class=slideLeft onclick='slideLeft(this)'>&#10094;</span>
+<div class=modalContainer><img id=MODAL></div>
+<span class=slideRight onclick='slideRight(this)'>&#10095;</span>
+</div>
+<style>
+.modal{display:-webkit-flex; display:flex; flex-flow:row; justify-content:center; align-items:center; position:fixed; left:0; top:0; height:100%; width:100%; display:none; z-index:1; background-color:rgba(0,0,0,.8); }
+.modalContainer{display:flex; /*justify-content:center; align-items:center;*/ }
+.slideRight{position:fixed; font-size:3vw; right:50px; }
+.slideLeft{position:fixed; font-size:3vw; left:50px; }
+.closeModal{position:fixed; font-size:3vw; left:10px; top:10px; }
+/*img{width:20%; height:20%; }*/
+</style>
+function showModal(obj, event){
+	Images=[]; IMGs={}
+	images=obj.parentNode.getElementsByTagName('img'), imgLength=images.length;
+	for (let idx=0;idx<imgLength;idx++)
+		{ img=images[idx].getAttribute('src')
+		Images.push(img)
+		IMGs[idx]=img }
+	modal.style.display='flex'
+	offsetWidth=modal.offsetWidth*.5; offsetHeight=modal.offsetHeight*.5
+	IMG.src=obj.getAttribute('src')
+	IMG.style.width=offsetWidth
+	IMG.style.height=offsetHeight
+	//modalContainer.appendChild(IMG)
+}
+function slideRight(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (idx==imgLength-1) return;
+	IMG.src=IMGs[idx+1]
+}
+function slideLeft(obj){
+	imgsrc=IMG.getAttribute('src')
+	idx=Images.indexOf(imgsrc)
+	if (!idx) return;
+	IMG.src=IMGs[idx-1]
+}
+function closeModal(obj){ obj.parentNode.style.display='none' }
+</main>
+	if (showAttr=='self'){ forum_reply.style.display='none'; forum_self.style.display='block'}
+	else { forum_self.style.display='none'; forum_reply.style.display='block'}
+/*function mouseCloseModal(obj){ obj.style.display='none' }
+modal.addEventListener('mousedown', function(event){
+	this.style.display='none';
+})*/
+		{%with tags=forum.tag.all%}
+		{%if tags%}<datalists>
+			{%for tag in tags%}
+			<div><a style='margin-right:4px' href={%url 'tag-detail' tag.id%}>{{tag}}</a></div>
+			{%endfor%}
+		</datalists>{%endif%}
+		{%endwith%}
+	{%for comment_forum in self|forumself%}
+	<datalists>
+		<output style='align-items:center; margin-right:2px'>
+		<div onclick='forumReplyDelete(this)' fid={{comment_forum.id}}>delete</div>
+		<a href={%url 'profile' comment_forum.post.author.id%}><img src={%url 'avatar-member' comment_forum.post.author.id%} style='with:40px;height:40px'></a>
+		<div onclick='forumReplyEdit(this, event)' fid={{comment_forum.id}}>edit</div>
+		</output>
+		<output style='flex:9'>
+			<div>{{comment_forum.post.body}}</div>
+			<div><time>{{comment_forum.timestamp|timesince}} {%trans 'ago'%}</time></div>
+		</output>
+	</datalists>
+	{%endfor%}
+function forumCtxEdit(obj){
+	let summary=obj.parentNode.nextElementSibling, DIV=summary.getElementsByTagName('div')[1]//.getElementsByTagName('div')[0]
+	let fid=obj.getAttribute('fid'), section=summary.parentNode
+	if(!document.contains(flexForm)) flexForm=document.createElement('textarea')
+	txtarea.rows=1; /*flexForm.id='bE';*/ txtarea.value=DIV.innerHTML; section.insertAdjacentElement('beforebegin', flexForm)
+	flexForm.addEventListener('keydown', function bE(evt)
+		{ if (evt.keyCode===13&&evt.altKey&&this.value)
+			{ let body=this.value
+			data=JSON.stringify({fid:fid, body:body})
+			xhr.data_sent("{%url 'forum-context-edit'%}", data);
+			xhr.onreadystatechange=function(evt)
+				{ if(this.readyState==4 && this.status==200)
+					{ rspData=JSON.parse(this.responseText);
+					if (rspData.forumCtxEdited) { DIV.innerHTML=body; flexForm.value=''; flexForm.removeEventListener('keydown', bE); section.parentNode.removeChild(flexForm) }
+					else console.log('SelfForum Not Deleted') }
+				}
+			}
+	})
+}
+{%endcomment%}

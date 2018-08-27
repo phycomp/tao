@@ -1,0 +1,31 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block TITLE%}{%trans 'Your current avatar:'%}{%endblock TITLE%}
+{%block STYLE%}
+<style>
+main{justify-content:center; align-items:flex-start; }
+figure{flex:1; }
+section{flex:1; }
+</style>
+{%endblock STYLE%}
+{%block MAIN %}
+<main>
+<figure>
+<img src={%url 'avatar-member' user.id%}>
+</figure>
+<section>
+<form enctype=multipart/form-data method=POST action={%url 'avatar-add'%}>
+	<input type=hidden name=csrfmiddlewaretoken value={{csrf_token}}><br>
+	<input type=file name=avatar value={%trans 'Upload Avatar'%}><br>
+<button>{% trans 'Upload New Image' %}</button>
+</form>
+</section>
+</main>
+{%endblock MAIN%}
+    {%comment%}avatar_tags
+{{ upload_avatar_form.as_p }}{% csrf_token %}
+    {% avatar user %}
+    {% if not avatars %}
+        <p>{% trans 'You haven't uploaded an avatar yet. Please upload one now.' %}</p>
+    {% endif %}
+    {%endcomment%}

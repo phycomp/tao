@@ -1,0 +1,24 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block STYLE%}
+<style>
+main{display:flex; flex-flow:wrap; }
+figure{display:flex; flex-flow:column; flex:1}
+figure div{text-align:center}
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+{{user}}
+{%for avatar in user.avatar.all%}
+<figure>
+<div><img src={%url 'thumbnail' avatar.id 40%}></div>
+<div>{{avatar.media.name}}</div>
+<div><a href={%url 'avatar-delete' avatar.id%}>{%trans 'delete'%}</a></div>
+</figure>
+{%endfor%}
+</main>
+{%endblock MAIN%}
+{%comment%}
+ style='width:80px;height:80px'
+{%endcomment%}

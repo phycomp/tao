@@ -1,0 +1,155 @@
+{%load i18n%}
+{%include 'xhr.html'%}
+<!--<link rel=stylesheet type="text/css" href="{{MEDIA_URL}}css/nav.css">-->
+<!--<link rel=stylesheet href={{MEDIA_URL}}css/search.css>-->
+<style>
+nav{display:flex; display:-webkit-flex; align-items:flex-start; justify-content:center; background-color:maroon; width:100%; position:relative; top:0; z-index:100; }
+nav::focus(::not){display:none; }
+nav label{ display:flex; cursor:pointer; user-select:none; flex:1; justify-content:center; }
+nav div{display:flex; display:-webkit-flex; flex:1; flex-flow:column; }
+nav input[type=radio]{ display: none; }
+nav div div{ display: none; }
+nav div input[type=radio]:checked ~ div{align-items:center; display:-webkit-flex; display:flex; position:relative; }
+#menuToggle{display:none; }
+#LOGOUT{flex:1; display:-webkit-flex; display:flex; }
+@media all and (max-width:600px){
+	#menuToggle{right:10px; top:10px; display:flex; position:fixed; font-size:5vw; }
+	nav{flex-flow:column; width:20%; height:100%; display:none; left:0px; top:0; position:fixed; align-items:center;}
+	/*nav div{display:-webkit-flex; width:100%; justify-content:center; }
+	nav div div{display:none; }
+	nav div:checked{flex-flow:column; align-items:center; position:absolute; }
+	nav div:checked div{display:-webkit-flex; background-color:purple; position:relative; }
+	*/
+	#LOGOUT{display:block; width:100%; margin:auto; }
+}
+</style>
+<div onclick='sidebarToggle(this)' id=menuToggle>&#9776;</div>
+<nav>
+	<div>
+		<input type=radio id=INDEX name=menu onclick='radioToggle(this)'>
+		<label for=INDEX>INDEX</label>
+		<div><a href={%url 'index'%}>index</a></div>
+		<div><a href={%url 'contact'%}>{%trans 'contact'%}</a></div>
+		<div><a href={%url 'about'%}>{%trans 'about'%}</a></div>
+	</div>
+	{%if user.is_authenticated%}
+		<div>
+			<input type=radio id=HOME name=menu onclick='radioToggle(this)'>
+			<label for=HOME>HOME</label>
+			<div><a href={%url 'home'%}>home</a></div>
+			<div><a href={%url 'me'%}>ME</a></div>
+			<div><a href={%url 'others'%}>{%trans 'others'%}</a></div>
+		</div>
+		<div>
+			<input type=radio id=BLOG name=menu onclick='radioToggle(this)'>
+			<label for=BLOG>BLOG</label>
+			<div><a href={%url 'blogs'%}>{%trans 'blog'%}</a></div>
+			<div><a href={%url 'sutras'%}>{%trans 'sutra'%}</a></div>
+		</div>
+		<div>
+			<input type=radio id=FORUM name=menu onclick='radioToggle(this)'>
+			<label for=FORUM>FORUM</label>
+			<div><a href={%url 'forums'%}>{%trans 'forum'%}</a></div>
+			<div><a href={%url 'forum-detail' 11%}>{%trans 'vegetables'%}</a></div>
+			<div><a href={%url 'forum-detail' 21%}>{%trans 'soulsongs'%}</a></div>
+		</div>
+		<div>
+			<input type=radio id=CAMPAIGN name=menu onclick='radioToggle(this)'>
+			<label for=CAMPAIGN>CAMPAIGN</label>
+			<div><a href={%url 'tugs'%}>{%trans 'tugs'%}</a></div>
+		</div>
+		<div>
+			<input type=radio id=ACCESS name=menu onclick='radioToggle(this)'>
+			<label for=ACCESS>{%trans 'ACCESS'%}</label>
+			<div><a href={%url 'password-reset'%}>{%trans 'Password Reset'%}</a></div>
+			<div>
+			<form id=LOGOUT action={%url 'logout'%} method=post>
+			<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+			<button>{%trans 'logout'%}</button>
+			</form></div>
+		</div>
+	{%else%}
+		<div><a href={%url 'access'%}>{%trans 'ACCESS'%}</a></div>
+	{%endif%}
+	<input type=search placeholder="Search..." onsearch='showSearch(this)' results=5 autosave=unique name=search>
+</nav>
+<script>
+let navDisplayStatus=true
+var menuChecked, MID, OID, Mid, toggle=false, displayProp, MENU=document.getElementsByName('menu'), nav=querySelector('nav')
+
+/*
+document.addEventListener('click', function(){
+	nav.style.display=navDisplayStatus?'none':'-webkit-flex'
+	navDisplayStatus=!navDisplayStatus
+})
+*/
+
+window.addEventListener('resize', function(event){
+	if(nav.style.display=='none'&&window.innerWidth>600)nav.style.display='-webkit-flex'
+})
+function radioToggle(obj){
+	OID=obj.getAttribute('id')
+	if(OID!=Mid) toggle=false
+	Mid=OID
+	if(!toggle)
+		for (let idx=0; idx<MENU.length;idx++) {
+			Item=MENU.item(idx)
+			MID=Item.getAttribute('id')
+			if(Mid==MID)obj.checked=true
+			else Item.checked=false;
+		}
+	else obj.checked=false
+	toggle=!toggle
+}
+function sidebarToggle(obj, event){
+	displayProp=nav.style.display
+	nav.style.display=displayProp=='none'?'-webkit-flex':'none'
+	nav.style.display=displayProp=='-webkit-flex'?'none':'-webkit-flex'
+}
+function showSearch(obj){
+var data=JSON.stringify({q:obj.value}), rspData, search_url="{%url 'blog-search'%}";
+xhr.data_sent(search_url, data);
+	xhr.onreadystatechange=function(evt){
+		if(this.readyState==4 && this.status==200) { rspData=JSON.parse(this.responseText);
+			if (rspData.UserExisted) console.log('User Not Existed');//form.innerHTML="<div style='color:red'>Messages for password reset sent, please check your mailbox.</div>";
+			else console.log('User Not Existed') }
+		}
+}
+</script>
+	{%comment%}
+			{#<div><a href={%url 'edit-profile'%}>{%trans 'edit-profile'%}</a></div>#}
+			{#<div><a href={%url 'friend_add' user%}>{%trans 'friend add'%}</a></div>#}
+			{#<div><a href={%url 'friends'%}>{%trans 'FRIENDS'%}</a></div>#}
+{#<a href={%url 'logout'%}>{%trans 'LOGOUT'%}</a>#}
+<div>
+    <input type='radio'>
+    <label for=toggle>Expand</label>
+        <div><a href=#>One</a></div>
+        <div><a href=#>Two</a></div>
+        <div><a href=#>Three</a></div>
+        <div><a href=#>Four</a></div>
+</div>
+/*
+nav input[type=radio]{display:none; }
+flex:1; display:-webkit-flex; flex-flow:column; 
+nav div div{display:none}
+nav div:checked div{display:block; position:relative; }
+nav >div a{text-decoration:none; color:yellow; }
+nav >div a:hover{text-decoration:none; color:dodgerblue; font-weight:bold; }
+nav input[type=search]{width:40px; border-radius:5px; outline:none;  transition:all .5s ease-in-out; color:seagreen; }
+nav input[type=search]:checked{width:20%; }
+#navWrapper{width:98%; position:fixed; top:0; }
+	nav{background-color:rgba(0,0,0,.3); }
+	nav{flex-flow:column; }
+	nav div{padding-bottom:4px; }
+	nav div div:checked{background-color:lightblue; }
+	nav input[type=search]:checked{width:100%; }*/
+div div{display:none; }
+div label{cursor:pointer; user-select:none; }
+div input[type=radio]{display:none; }
+/*nav div:not(:focus) input[type=radio]:checked ~ div{display:none; }*/
+*/
+			<div><a href={%url 'tug-detail' 7%}>{%trans 'reading'%}</a></div>
+			<div><a href={%url 'tug-detail' 8%}>{%trans 'hiking'%}</a></div>
+ tabIndex=1
+	{%endcomment%}

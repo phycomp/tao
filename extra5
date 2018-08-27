@@ -1,0 +1,16 @@
+<script>
+var xhr=new XMLHttpRequest();
+xhr.data_sent=function(url, data){
+		this.open('POST', url, true);
+		this.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+		xhr.send(data);
+	};
+function getElement(ele){return document.querySelector(ele)}
+</script>
+/* //var button=document.querySelector('button');
+function rtrv_info(evt){
+	old_password=o.value; password=p.value; Password=P.value;
+	data=JSON.stringify({old_password:old_password, password:password, Password:Password}); 
+};
+, o=getElement('input[name=old_password]'), p=getElement('input[name=password]'), P=getElement('input[name=Password]'), old_password, password, Password, rspData;
+*/

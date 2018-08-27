@@ -1,0 +1,77 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block XHR%}
+{%include 'xhr.html'%}
+{%endblock XHR%}
+{%block SCRIPT%}
+<script>
+sidebar=ById('sidebar');
+function sidebarToggle(obj, event){
+	displayProp=sidebar.style.display
+	sidebar.style.display=displayProp=='none'?'block':'none'
+	sidebar.style.display=displayProp=='block'?'none':'block'
+}
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+#menuToggle{right:10px; top:10px; display:flex; position:fixed; font-size:4vw; }
+#navWrapper{display:none; left:10px; }
+output{width:20%; left:0; top:0; height:600px; position:fixed; display:none; }
+output div{display:-webkit-flex; width:100%; justify-content:center; }
+output div div{display:none; }
+output div:hover{flex-flow:column; align-items:center; /*position:fixed;*/ }
+output div:hover div{display:-webkit-flex; background-color:purple; position:relative; }
+output form{width:50%; }
+/*
+output div:hover{flex-flow:column; align-items:center; }
+output div:hover div{display:block; position:relative; }
+*/
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<main>
+<div onclick='sidebarToggle(this)' id=menuToggle>&#9776;</div>
+<output id=sidebar>
+	<div><a href={%url 'index'%}>index</a>
+	<div><a href={%url 'contact'%}>{%trans 'contact'%}</a></div>
+		<div><a href={%url 'about'%}>{%trans 'about'%}</a></div>
+	</div>
+	{%if user.is_authenticated%}
+	<div><a href={%url 'home'%}>home</a></div>
+	<div><a href={%url 'me'%}>ME</a>
+		<div><a href={%url 'friends'%}>{%trans 'FRIENDS'%}</a></div>
+		{#<div><a href={%url 'edit-profile'%}>{%trans 'edit-profile'%}</a></div>#}
+		<div><a href={%url 'password-reset'%}>{%trans 'Password Reset'%}</a></div>
+	</div>
+	<div><a href={%url 'members'%}>{%trans 'members'%}</a>
+		{#<div><a href={%url 'friend_add' user%}>{%trans 'friend add'%}</a></div>#}
+	</div>
+	<div><a href={%url 'blogs'%}>{%trans 'blog'%}</a>
+		<div><a href={%url 'sutras'%}>{%trans 'sutra'%}</a></div>
+		<div><a href={%url 'forums'%}>{%trans 'forum'%}</a></div>
+		<div><a href={%url 'tugs'%}>{%trans 'tug'%}</a></div>
+	</div>
+	<div>{#<a href={%url 'logout'%}>{%trans 'LOGOUT'%}</a>#}
+		<form id=LOGOUT action={%url 'logout'%} method=post>
+		<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+		<button>{%trans 'logout'%}</button>
+		</form></div>
+	{%else%}
+	<div><a href={%url 'access'%}>access</a></div>
+	{%comment%}
+	<div><a href={%url 'login'%}>{%trans 'LOGIN'%}</a>
+		<div><a href={%url 'signup'%}>{%trans 'SingUp'%}</a></div>
+		<div><a href={%url 'password-forgot'%}>{%trans 'password forgot'%}</a></div>
+	</div>
+	{%endcomment%}
+	{%endif%}
+	<input type=search placeholder="Search..." onsearch='showSearch(this)' results=5 autosave=unique name=search>
+</output>
+</main>
+{%endblock MAIN%}
+{%comment%}
+<div >
+</div>
+{display:-webkit-flex; left:0; width:20%; }
+{%endcomment%}

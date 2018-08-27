@@ -1,0 +1,71 @@
+{%extends 'base.html'%}
+{%load i18n utils%}
+{%block SCRIPT%}
+<script>
+function geApprove(obj){
+	data={geID:obj.getAttribute('geID'), oriGEID:obj.getAttribute('oriGEID')}
+	xhr.data_sent("{%url 'ge-approve'%}", JSON.stringify(data));
+	xhr.onreadystatechange=function(evt)
+	{ if(this.readyState==4 && this.status==200)
+			{ rspData=JSON.parse(this.responseText);
+			if (rspData.goodsExchangeApproved) console.log('GoodsExchange Approved')
+			else console.log('Gallery Not Deleted')}
+	}
+}
+
+</script>
+{%endblock SCRIPT%}
+{%block SECTION%}
+{%with title=oriGE.gallery.title.title coordinate=oriGE.coordinate datetime=oriGE.datetime timestamp=oriGE.timestamp medium=oriGE.gallery.picture.all galler=oriGE.gallery.galler ggid=oriGE.gallery.galler.id geid=oriGE.id%}
+	<section gid={{gid}}>
+	<output>
+	<div onclick='geDelete(this, event)' gid={{gid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' ggid%}"><img alt={{galler}} class=small src={%url 'avatar-member' ggid%}></a></div>
+	<div><a href={%url 'ge-edit' geid%}>{%trans 'edit'%}</a></div>
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		<hgroup><div>{{coordinate}}</div><div><time date={{date}}>{{date}}</time><time time={{time}}>{{time}}</time></div></hgroup>
+		<div><time>{{datetime}}</time></div>
+			{%if medium%}<picture>
+			{%for media in medium%}
+				<img class=small title='{{media.description}}' alt='{{media.description}}' src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	</section>
+{%endwith%}
+{%endblock SECTION%}
+
+{%block ARTICLE%}
+{%for ge in ges%}
+{%with timestamp=ge.timestamp oriGEID=oriGE.id medium=ge.ge2ge.gallery.picture.all galler=ge.ge2ge.gallery.galler ggID=ge.ge2ge.gallery.galler.id geID=ge.id%}
+	<article gid={{gid}}>
+	<output>
+	<div onclick='geDelete(this, event)' gid={{gid}}>{%trans 'delete'%}</div>
+	<div><a href="{%url 'profile' ggID%}"><img alt={{galler}} class=small src={%url 'avatar-member' ggID%}></a></div>
+	{#<div><a href={%url 'ge-edit' geID%}>{%trans 'edit'%}</a></div>#}
+	{%if not oriGE.isDealt%}<div onclick='geApprove(this)' oriGEID='{{oriGEID}}' geID='{{geID}}'>{%trans 'approve'%}</div>{%endif%}
+	</output>
+	<summary style='flex:9'>
+		<div>{{title}}<time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+		{#<hgroup></hgroup>#}
+			{%if medium%}<picture>
+			{%for media in medium%}
+				<img class=small title='{{media.description}}' alt='{{media.description}}' src={%url 'avatar-raw' media.id%} onclick='showModal(this)'>
+			{%endfor%}
+			</picture>{%endif%}
+	</summary>
+	</article>
+{%endwith%}
+{%endfor%}
+{%block STYLE%}
+<style>
+article:nth-child(odd){color:#00ffff}
+</style>
+{%endblock STYLE%}
+{%endblock ARTICLE%}
+{%block ASIDE%}
+{%include 'infinitescroll.html'%}
+{%include 'carousel.html'%}
+{%endblock ASIDE%}

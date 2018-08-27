@@ -1,0 +1,18 @@
+{%load i18n utils%}
+<article>
+	{%with commentorID=comment.commentorID userID=user.id cmtID=comment.commentor_id cid=comment.id timestamp=comment.timestamp body=comment.body%}
+	<output style='margin-right:2px'>
+	{%if commentorID == userID%}<div onclick='commentBlogDelete(this)' cid={{cid}}>delete</div>
+	<a href={%url 'profile' cmtID%}><img alt={{cmtID}} src={%url 'avatar-member' cmtID%} class=small></a>
+	<div onclick='commentBlogEdit(this)' cid={{cid}}>edit</div>
+	{%else%}
+	<a href={%url 'profile' cmtID%}><img src={%url 'avatar-member' cmtID%} class=small></a>
+	{%endif%}
+	</output>
+	<summary>
+	<div>{{body}}</div>
+	<div><time>{{timestamp|timesince}} {%trans 'ago'%}</time></div>
+	<textarea rows=1 cid={{cid}} onkeyup='commentBlogSelf(this, event)'></textarea>
+	</summary>
+	{%endwith%}
+</article>

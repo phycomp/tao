@@ -1,0 +1,32 @@
+insert into friendship (invoker_id, user_id, timestamp) values (22, 7, '2018-08-04 16:32:51.087977+08');
+Exact, GreaterThan, GreaterThanOrEqual, In, IsNull, LessThan,
+    LessThanOrEqual
+lookup
+    lookup_name = 'exact'
+    lookup_name = 'iexact'
+    lookup_name = 'gt'
+    lookup_name = 'gte'
+    lookup_name = 'lt'
+    lookup_name = 'lte'
+    lookup_name = 'in'
+            pattern = connection.pattern_ops[self.lookup_name].format(connection.pattern_esc)
+    lookup_name = 'contains'
+    lookup_name = 'icontains'
+    lookup_name = 'startswith'
+    lookup_name = 'istartswith'
+    lookup_name = 'endswith'
+    lookup_name = 'iendswith'
+    lookup_name = 'range'
+    lookup_name = 'isnull'
+    lookup_name = 'regex'
+        if self.lookup_name in connection.operators:
+            sql_template = connection.ops.regex_lookup(self.lookup_name)
+    lookup_name = 'iregex'
+        return connection.operators[self.lookup_name] % rhs
+    lookup_name = 'exact'
+    lookup_name = 'gt'
+    lookup_name = 'gte'
+    lookup_name = 'lt'
+    lookup_name = 'lte'
+update friendship set invoker_id=21 where id=10;
+update friendship set friend_id=50, invoker_id=null where id=11;

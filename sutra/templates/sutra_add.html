@@ -1,0 +1,28 @@
+{%extends 'base.html'%}
+{%load i18n%}
+{%block SCRIPT%}
+<script src={{MEDIA_URL}}js/ckeditor.js></script>
+<script>
+ClassicEditor.create(document.querySelector('#editor') ).catch( error => {
+            console.error( error );
+        } );
+</script>
+{%endblock SCRIPT%}
+{%block STYLE%}
+<style>
+.ck-editor { color: green; }
+.wrapper{display:flex; text-align:center; margin:20px auto}
+input[type=text]{width:100%; margin-bottom:20px}
+textarea{width:100%; background-color:green; }
+</style>
+{%endblock STYLE%}
+{%block MAIN%}
+<div class=wrapper>
+<form action={%url "sutra-add"%} method=POST>
+<input type=hidden value={{csrf_token}} name=csrfmiddlewaretoken>
+<input type=text name=title placeholder=title required>
+<textarea id=editor name=body placeholder=BLOGBODY cols=50 rows=8 required></textarea>
+<button type=submit>{%trans 'Sutra Added'%}</button>
+</form>
+</div>
+{%endblock MAIN%}
