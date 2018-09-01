@@ -1,9 +1,0 @@
-    flex-flow: column;
-    width: 20%;
-    height: 100%;
-    display: flex;
-    left: 0px;
-    top: 0;
-    position: sticky;
-    align-items: center;
-    float: left;
